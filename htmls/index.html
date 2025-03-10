@@ -2,107 +2,125 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>Mi Feed de Facebook</title>
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Font Awesome para íconos -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <!-- Archivo de estilos personalizado -->
-  <link rel="stylesheet" href="../styles/styles.css">
-</head>
-<body>
-  <!-- Contenedor requerido para el SDK de Facebook -->
-  <div id="fb-root"></div>
-  <!-- Carga asíncrona del SDK de Facebook -->
-  <script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_LA/sdk.js"></script>
-  <script>
-    // Inicializa el SDK de Facebook
-    window.fbAsyncInit = function() {
-      FB.init({
-        appId      : '1213168163806063|bhE-EAAnDEFO7lzgBO5V3JvZB0Tj3ceEab6ImWGxgEY13Ld5C0qDOC9IUVcLzPzsjAxPtpZA04yOinpKTFWyN8AmvhE1TF67ShsnEqHkCJGMAZACU6ATShnWWbDguKwApjIFWfoQ4jFdk8pnZBwWuqBr0ZAwSnXEVbZA6OVLH3SSzA28MZCZAQHH7ZBrAkcqP5
-',  // Reemplaza con el ID de tu aplicación de Facebook
-        cookie     : true,           // Habilita el uso de cookies para almacenar la sesión
-        xfbml      : true,           // Procesa etiquetas XFBML
-        version    : 'v15.0'         // Versión de la Graph API
-      });
-    };
-
-    // Función para iniciar sesión con Facebook
-    function fbLogin() {
-      FB.login(function(response) {
-        if (response.authResponse) {
-          console.log('Inicio de sesión exitoso');
-          loadFeed();
-        } else {
-          console.error('Usuario no se autenticó.');
-        }
-      }, {scope: 'public_profile,user_posts'});
+  <title>Mi Feed de Facebook (Personal)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
     }
-
-    // Función para obtener los posts del usuario (sus propios posts)
-    function loadFeed() {
-      // Se solicita el campo "posts" del usuario, limitado a los posts publicados
-      FB.api('/me/posts?fields=message,created_time', function(response) {
-        if (response && !response.error) {
-          displayFeed(response.data);
-        } else {
-          console.error('Error al cargar el feed:', response.error);
-          document.getElementById("results").innerHTML = `<p>Error al cargar el feed.</p>`;
-        }
-      });
+    h1 {
+      text-align: center;
     }
-
-    // Función para mostrar el feed en la página
-    function displayFeed(posts) {
-      const resultsDiv = document.getElementById("results");
-      resultsDiv.innerHTML = "";
-      if (posts && posts.length > 0) {
-        posts.forEach(function(post) {
-          // Crear tarjeta para cada post
-          const card = document.createElement("div");
-          card.className = "post-card card mb-3";
-          const cardBody = document.createElement("div");
-          cardBody.className = "card-body";
-
-          // Contenido del post: mensaje y fecha
-          const message = post.message ? post.message : "Sin contenido";
-          let html = `<p>${message}</p>`;
-          if (post.created_time) {
-            const date = new Date(post.created_time);
-            html += `<p><small>${date.toLocaleDateString()}</small></p>`;
-          }
-          cardBody.innerHTML = html;
-          card.appendChild(cardBody);
-          resultsDiv.appendChild(card);
-        });
-      } else {
-        resultsDiv.innerHTML = "<p>No se encontraron posts.</p>";
+    .feed {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    .feed-item {
+      width: calc(33.33% - 20px);
+      box-sizing: border-box;
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 4px;
+      text-align: center;
+      background-color: #f9f9f9;
+    }
+    .feed-item img {
+      width: 100%;
+      border-radius: 4px;
+    }
+    .feed-item p {
+      font-size: 0.9em;
+      margin-top: 8px;
+      color: #555;
+    }
+    @media (max-width: 768px) {
+      .feed-item {
+        width: calc(50% - 20px);
       }
     }
-  </script>
+    @media (max-width: 480px) {
+      .feed-item {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Mi Feed Personal de Facebook</h1>
+  <div id="feed" class="feed">Cargando publicaciones...</div>
 
-  <!-- Contenido de la página -->
-  <div class="container-fluid">
-    <div class="row">
-      <!-- Sidebar para iniciar sesión -->
-      <div class="col-md-3 sidebar">
-        <h1>Mi Feed de Facebook</h1>
-        <p>Inicia sesión con Facebook para ver tus posts.</p>
-        <button id="fbLoginBtn" class="btn btn-primary" onclick="fbLogin()">Iniciar sesión con Facebook</button>
-      </div>
-      <!-- Área principal para mostrar el feed -->
-      <div class="col-md-9">
-        <div class="cards-container">
-          <div id="results" class="mb-3">
-            <!-- Aquí se mostrarán los posts del usuario -->
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Bootstrap JS Bundle -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Pon aquí tu token de acceso con user_posts, user_photos, user_videos, public_profile
+    const accessToken = 'TU_TOKEN_AQUI';
+
+    // Versión de la API (ajústala a la que uses en tu app)
+    const apiVersion = 'v16.0';
+
+    // Endpoint para obtener los posts
+    // p.ej.: /me/posts?fields=id,message,full_picture,created_time,permalink_url
+    // Ajusta los campos según lo que quieras mostrar
+    const endpoint = `https://graph.facebook.com/${apiVersion}/me/posts?fields=id,message,full_picture,created_time,permalink_url&access_token=${accessToken}`;
+
+    // Función para renderizar el feed
+    function renderFeed(data) {
+      const feedContainer = document.getElementById('feed');
+      feedContainer.innerHTML = ''; // Limpiar mensaje de carga
+
+      // data.data es un array con las publicaciones
+      data.data.forEach(post => {
+        const item = document.createElement('div');
+        item.className = 'feed-item';
+
+        // Si el post tiene imagen (full_picture), la mostramos
+        if (post.full_picture) {
+          const link = document.createElement('a');
+          link.href = post.permalink_url;
+          link.target = '_blank'; // abrir en nueva pestaña
+          const img = document.createElement('img');
+          img.src = post.full_picture;
+          img.alt = 'Publicación de Facebook';
+          link.appendChild(img);
+          item.appendChild(link);
+        }
+
+        // Si tiene message, lo mostramos
+        if (post.message) {
+          const msg = document.createElement('p');
+          msg.textContent = post.message;
+          item.appendChild(msg);
+        }
+
+        // (Opcional) muestra fecha
+        if (post.created_time) {
+          const dateP = document.createElement('p');
+          dateP.style.fontSize = '0.8em';
+          const dateObj = new Date(post.created_time);
+          dateP.textContent = `Publicado: ${dateObj.toLocaleString()}`;
+          item.appendChild(dateP);
+        }
+
+        feedContainer.appendChild(item);
+      });
+    }
+
+    // Llamada a la API de Facebook
+    fetch(endpoint)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Error en la solicitud: ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        // console.log(data); // para debug
+        renderFeed(data);
+      })
+      .catch(error => {
+        console.error('Error al obtener el feed de Facebook:', error);
+        document.getElementById('feed').textContent = 'Error al cargar el feed. Verifica el token y los permisos.';
+      });
+  </script>
 </body>
 </html>
