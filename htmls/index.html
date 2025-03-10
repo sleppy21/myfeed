@@ -1,17 +1,27 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Mi Feed de Facebook (Personal)</title>
+  <meta charset="UTF-8" />
+  <title>Demo: Feed Personal de Facebook con Login/Logout</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
     }
-    h1 {
+    h1, h2 {
       text-align: center;
     }
-    .feed {
+    .btn-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 8px 16px;
+      margin: 0 10px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    #feed {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
@@ -48,51 +58,136 @@
   </style>
 </head>
 <body>
-  <h1>Mi Feed Personal de Facebook</h1>
-  <div id="feed" class="feed">Cargando publicaciones...</div>
+  <h1>Demo - Facebook Feed Personal</h1>
+  <h2>(Con Login y Logout)</h2>
 
+  <!-- Botones de inicio/cierre de sesión -->
+  <div class="btn-container">
+    <button id="loginBtn">Iniciar Sesión con Facebook</button>
+    <button id="logoutBtn">Cerrar Sesión</button>
+  </div>
+
+  <div id="status" style="text-align:center; margin-bottom:20px; color:green;"></div>
+
+  <!-- Contenedor para las publicaciones -->
+  <div id="feed">Por favor, inicia sesión para ver tu feed.</div>
+
+  <!-- SDK de Facebook -->
+  <script async defer src="https://connect.facebook.net/es_ES/sdk.js"></script>
   <script>
-    // Pon aquí tu token de acceso con user_posts, user_photos, user_videos, public_profile
-    const accessToken = 'TU_TOKEN_AQUI';
-
-    // Versión de la API (ajústala a la que uses en tu app)
+    // Reemplaza con tu App ID de Facebook
+    const appId = 'TU_APP_ID';
+    // Versión de la API (ej.: 'v16.0')
     const apiVersion = 'v16.0';
 
-    // Endpoint para obtener los posts
-    // p.ej.: /me/posts?fields=id,message,full_picture,created_time,permalink_url
-    // Ajusta los campos según lo que quieras mostrar
-    const endpoint = `https://graph.facebook.com/${apiVersion}/me/posts?fields=id,message,full_picture,created_time,permalink_url&access_token=${accessToken}`;
+    // Inicializar el SDK de Facebook
+    window.fbAsyncInit = function() {
+      FB.init({
+        appId: appId,
+        cookie: true,
+        xfbml: true,
+        version: apiVersion
+      });
 
-    // Función para renderizar el feed
+      // Revisar el estado de la sesión al cargar la página
+      FB.getLoginStatus(function(response) {
+        statusChangeCallback(response);
+      });
+    };
+
+    // Manejar el estado de la sesión
+    function statusChangeCallback(response) {
+      // console.log('statusChangeCallback', response);
+      if (response.status === 'connected') {
+        // Usuario conectado y app autorizada
+        document.getElementById('status').textContent = '¡Sesión iniciada!';
+        // Cargar el feed
+        fetchFacebookFeed(response.authResponse.accessToken);
+      } else {
+        // No está conectado o no autorizó la app
+        document.getElementById('status').textContent = 'No has iniciado sesión.';
+        document.getElementById('feed').innerHTML = 'Por favor, inicia sesión para ver tu feed.';
+      }
+    }
+
+    // Función para iniciar sesión
+    function loginFacebook() {
+      // Pedimos permisos
+      FB.login(function(response) {
+        if (response.authResponse) {
+          // Autenticado
+          statusChangeCallback(response);
+        } else {
+          // Usuario canceló el login
+          document.getElementById('status').textContent = 'No se completó el inicio de sesión.';
+        }
+      }, {
+        scope: 'public_profile,user_posts,user_photos,user_videos'
+      });
+    }
+
+    // Función para cerrar sesión
+    function logoutFacebook() {
+      FB.logout(function(response) {
+        // Se ha cerrado la sesión
+        document.getElementById('status').textContent = 'Sesión cerrada.';
+        document.getElementById('feed').innerHTML = 'Por favor, inicia sesión para ver tu feed.';
+      });
+    }
+
+    // Función para obtener el feed personal
+    function fetchFacebookFeed(accessToken) {
+      const endpoint = `https://graph.facebook.com/${apiVersion}/me/posts?fields=id,message,full_picture,created_time,permalink_url&access_token=${accessToken}`;
+
+      fetch(endpoint)
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`Error en la solicitud: ${res.statusText}`);
+          }
+          return res.json();
+        })
+        .then(data => {
+          renderFeed(data);
+        })
+        .catch(err => {
+          console.error('Error al obtener el feed de Facebook:', err);
+          document.getElementById('feed').textContent = 'Error al cargar el feed.';
+        });
+    }
+
+    // Función para mostrar el feed en la página
     function renderFeed(data) {
       const feedContainer = document.getElementById('feed');
-      feedContainer.innerHTML = ''; // Limpiar mensaje de carga
+      feedContainer.innerHTML = ''; // Limpiar contenido previo
 
-      // data.data es un array con las publicaciones
+      if (!data.data || data.data.length === 0) {
+        feedContainer.innerHTML = 'No hay publicaciones disponibles o son privadas.';
+        return;
+      }
+
       data.data.forEach(post => {
         const item = document.createElement('div');
         item.className = 'feed-item';
 
-        // Si el post tiene imagen (full_picture), la mostramos
+        // Mostrar imagen si existe
         if (post.full_picture) {
           const link = document.createElement('a');
           link.href = post.permalink_url;
-          link.target = '_blank'; // abrir en nueva pestaña
+          link.target = '_blank';
           const img = document.createElement('img');
           img.src = post.full_picture;
-          img.alt = 'Publicación de Facebook';
           link.appendChild(img);
           item.appendChild(link);
         }
 
-        // Si tiene message, lo mostramos
+        // Mostrar mensaje si existe
         if (post.message) {
           const msg = document.createElement('p');
           msg.textContent = post.message;
           item.appendChild(msg);
         }
 
-        // (Opcional) muestra fecha
+        // Fecha
         if (post.created_time) {
           const dateP = document.createElement('p');
           dateP.style.fontSize = '0.8em';
@@ -105,22 +200,9 @@
       });
     }
 
-    // Llamada a la API de Facebook
-    fetch(endpoint)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`Error en la solicitud: ${response.statusText}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        // console.log(data); // para debug
-        renderFeed(data);
-      })
-      .catch(error => {
-        console.error('Error al obtener el feed de Facebook:', error);
-        document.getElementById('feed').textContent = 'Error al cargar el feed. Verifica el token y los permisos.';
-      });
+    // Listeners para los botones
+    document.getElementById('loginBtn').addEventListener('click', loginFacebook);
+    document.getElementById('logoutBtn').addEventListener('click', logoutFacebook);
   </script>
 </body>
 </html>
