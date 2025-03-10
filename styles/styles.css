@@ -233,6 +233,8 @@ body {
   min-height: 89vh;
   width: 113%;
   position: relative;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .videos-container {
@@ -428,7 +430,7 @@ body {
   background-color: #1a3a51;
   color: #a4c0d4;
   border-radius: 8px;
-  max-width: 800px; /* Más grande para que el reproductor se vea amplio */
+  max-width: 800px;
   width: 90%;
   max-height: 90%;
   overflow-y: auto;
@@ -449,9 +451,8 @@ body {
 /* Reproductor: hacer que el iframe ocupe todo el ancho y tenga mayor altura */
 .video-player iframe {
   width: 100%;
-  height: 500px; /* Ajusta este valor según lo que necesites */
-  width: 700
-  ;
+  height: 500px;
+  width: 700px;
   border: none;
 }
 
@@ -483,7 +484,7 @@ body {
   font-weight: bold;
   font-size: 0.9rem;
   margin-bottom: 4px;
-  color:#ffffff;
+  color: #ffffff;
 }
 
 .video-comment-text {
@@ -492,10 +493,9 @@ body {
   color: #b1d2da;
 }
 
-
 /* Título del video */
 #videoModal .video-title {
-  font-size: 2rem;       /* Ajusta el tamaño de fuente según necesites */
+  font-size: 2rem;
   font-weight: bold;
   color: #1a3a51;
   text-align: center;
@@ -532,4 +532,3 @@ body {
 #videoModal .video-stats span {
   margin-right: 20px;
 }
-
