@@ -7,10 +7,33 @@ body {
   padding: 0;
 }
 
+/* Navbar personalizado */
+.custom-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #fff; /* Fondo blanco */
+  border-bottom: 1px solid #ddd; /* Línea sutil inferior */
+  z-index: 1000;
+  padding: 10px 20px;
+}
+.custom-navbar .container-fluid {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.custom-navbar-brand {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1c1e21;
+  text-decoration: none;
+}
+
 /* Barra lateral */
 .sidebar {
   min-height: 100vh; /* Ocupa toda la altura de la pantalla */
-  background-color: #282424; /* Color oscuro */
+  background-color: #212021; /* Color oscuro */
   color: #fff;
   padding: 20px;
 }
@@ -40,9 +63,8 @@ body {
 /* ===== Estilos de la Tarjeta de Publicación ===== */
 .fb-post {
   width: 100%;              /* Ocupa el 100% del contenedor .post-col */
-  box-sizing: border-box;   /* Incluye padding y border en el ancho */
+  box-sizing: border-box;   /* Incluye padding en el ancho */
   background-color: #fff;
-  border: 1px solid #ddd;
   border-radius: 8px;
   overflow: hidden;
   display: flex;

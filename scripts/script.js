@@ -1,5 +1,3 @@
-// scripts/script.js
-
 const accessToken = 'EAASZCQLWDkywBO8BIcCI8O8ZBAGQMffAfNeIs3pZCwEnqAIpVBEAZA59Ee8uR1DiF6RUVfXVVHm0bJes6P5jUCbQcByAsZCyx2hfLIa3tMYamMYg0nI2CWts9ZBNQrN9cak1JeOYLJVnqzsQFhAK2PYkHEoZBdbsXTJZCi1fmRrOgoTWHSSCarF4akat';
 const apiVersion = 'v16.0';
 
@@ -67,12 +65,13 @@ function buildPostHTML(post) {
   const col = document.createElement('div');
   col.className = 'post-col d-flex';
 
+  // Eliminamos la clase "card" para evitar los estilos de borde predeterminados de Bootstrap
   const card = document.createElement('div');
-  card.className = 'fb-post card h-100 d-flex flex-column';
+  card.className = 'fb-post h-100 d-flex flex-column';
 
   // Cabecera: foto, nombre y fecha
   const headerDiv = document.createElement('div');
-  headerDiv.className = 'card-header d-flex flex-column fb-post-header';
+  headerDiv.className = 'fb-post-header d-flex flex-column';
 
   const headerTop = document.createElement('div');
   headerTop.className = 'd-flex align-items-center';
@@ -105,7 +104,7 @@ function buildPostHTML(post) {
 
   // Cuerpo de la tarjeta
   const bodyDiv = document.createElement('div');
-  bodyDiv.className = 'card-body fb-post-body d-flex flex-column';
+  bodyDiv.className = 'fb-post-body d-flex flex-column';
 
   if (post.message) {
     const msgEl = document.createElement('p');
@@ -132,7 +131,7 @@ function buildPostHTML(post) {
     shareBtn.className = 'fb-post-share-btn';
     shareBtn.href = post.permalink_url;
     shareBtn.target = '_blank';
-    // Se usa un ícono más elegante (bi-share) y el botón es de ancho reducido
+    // Se utiliza un ícono más elegante (bi-share) y el botón es de ancho reducido
     shareBtn.innerHTML = `<i class="bi bi-share"></i> Compartir`;
     bodyDiv.appendChild(shareBtn);
   }
