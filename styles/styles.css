@@ -39,19 +39,35 @@ body {
   font-size: 15px;
 }
 
-/* Barra lateral */
-.sidebar {
-  width: 400px; /* Ajusta este valor para cambiar el ancho del sidebar */
-  min-height: 100vh; /* Ocupa toda la altura de la pantalla */
-  background-color: #212021; /* Color oscuro */
-  color: #fff;
-  transform: translate(0, -15px);
-  padding: 20px;
+/* Estilo para el logo de Facebook */
+.fb-logo {
+  height: 35px; /* Ajusta según el tamaño deseado */
+  margin-right: 10px;
 }
 
+/* Caja contenedora para el <ul> */
+.ul-container {
+  background-color: #353535;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+/* Barra lateral: Actualizado para ser fija */
+.sidebar {
+  position: fixed;
+  left: 0;
+  width: 400px; /* Ajusta este valor para cambiar el ancho del sidebar */
+  min-height: calc(100vh - 70px); /* Ocupa toda la altura de la pantalla menos el navbar */
+  background-color: #212021; /* Color oscuro */
+  color: #fff;
+  /* Se elimina el transform para evitar desplazamientos innecesarios */
+}
+
+/* Contenido principal: se añade margen izquierdo para dejar espacio al sidebar fijo */
 .main-content {
   flex: 1;
   padding: 100px; /* Ajusta según tu diseño */
+  margin-left: 400px; /* Debe ser igual al ancho de la sidebar */
 }
 
 /* Animación de fade-in para publicaciones */
@@ -60,18 +76,15 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Contenedor de publicaciones */
+/* Contenedor de publicaciones usando grid para 3 columnas */
 #posts {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 30px;
 }
 
-/* Cada columna ocupará el 33.33% del contenedor (menos el gap) */
+/* Cada tarjeta (grid item) */
 .post-col {
-  flex: 0 0 calc(33.33% - 20px);
-  max-width: calc(33.33% - 20px);
-  margin-bottom: 20px;
   animation: fadeIn 0.5s ease-in-out;
 }
 
@@ -244,8 +257,22 @@ button:hover {
   color: #606770; /* Gris, como Facebook */
 }
 
-.menu-lateral{
+.menu-lateral {
   text-align: center;
   padding-top: 5px;
   font-size: 15px;
+}
+
+.titulo-container {
+  font-size: 15px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.comentario-container {
+  font-size: 13px;
+  color: #ffffff77;
+  padding-top: 3px;
+  padding-left: 10px;
+  padding-right: 10px;
 }

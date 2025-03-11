@@ -19,8 +19,11 @@
   <!-- Navbar personalizado -->
   <nav class="custom-navbar">
     <div class="container-fluid">
-      <a class="custom-navbar-brand" href="#">My Untitled Facebook Feed</a>
-      <!-- Puedes agregar más elementos aquí -->
+      <div class="navbar-left d-flex align-items-center">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Logo de Facebook" class="fb-logo">
+        <a class="custom-navbar-brand" href="#">Mi feed de fb..</a>
+      </div>
+      <!-- Puedes agregar más elementos aquí si lo requieres -->
     </div>
   </nav>
 
@@ -30,11 +33,13 @@
       <!-- Barra lateral izquierda -->
       <aside class="sidebar p-4">
         <h5 class="mb-3 menu-lateral">Menú Lateral</h5>
-        <ul class="list-unstyled">
-          <li><a href="#" class="text-decoration-none">Inicio</a></li>
-          <li><a href="#" class="text-decoration-none">Mi Perfil</a></li>
-          <li><a href="#" class="text-decoration-none">Configuración</a></li>
-        </ul>
+        <div class="ul-container">
+          <ul class="list-unstyled">
+            <div class="titulo-container">Facebook Connection</div>
+            <div class="comentario-container">Authorize in your Facebook account to display the page you manage.</div><br>
+            <div class="comentario-container">Que estresante sacar el api de facebook</div>
+          </ul>
+        </div>
       </aside>
 
       <!-- Contenido principal -->
@@ -46,7 +51,7 @@
 
         <!-- Contenedor de las publicaciones -->
         <div class="fondo">
-          <div id="posts" class="row g-4">
+          <div id="posts">
             <!-- Se inyectan las tarjetas aquí -->
           </div>
         </div>

@@ -1,5 +1,3 @@
-/* scripts/script.js */
-
 const accessToken = 'EAASZCQLWDkywBO8BIcCI8O8ZBAGQMffAfNeIs3pZCwEnqAIpVBEAZA59Ee8uR1DiF6RUVfXVVHm0bJes6P5jUCbQcByAsZCyx2hfLIa3tMYamMYg0nI2CWts9ZBNQrN9cak1JeOYLJVnqzsQFhAK2PYkHEoZBdbsXTJZCi1fmRrOgoTWHSSCarF4akat';
 const apiVersion = 'v16.0';
 
@@ -19,7 +17,8 @@ reactions.type(LOVE).summary(true).limit(0).as(love_reactions),\
 reactions.type(HAHA).summary(true).limit(0).as(haha_reactions),\
 reactions.type(WOW).summary(true).limit(0).as(wow_reactions),\
 reactions.type(SAD).summary(true).limit(0).as(sad_reactions),\
-reactions.type(ANGRY).summary(true).limit(0).as(angry_reactions)\
+reactions.type(ANGRY).summary(true).limit(0).as(angry_reactions),\
+comments.summary(true)\
 &access_token=${accessToken}
 `.replace(/\s+/g, '');
 
@@ -30,13 +29,12 @@ let allPosts = [];
  * Construye la tarjeta HTML para una publicación.
  */
 function buildPostHTML(post) {
-  // Cada tarjeta se coloca en una columna para forzar 3 por fila.
+  // Cada tarjeta se coloca en una columna (grid item)
   const col = document.createElement('div');
-  col.className = 'post-col d-flex';
+  col.className = 'post-col';
 
-  // Eliminamos la clase "card" para no heredar bordes de Bootstrap
   const card = document.createElement('div');
-  card.className = 'fb-post h-100 d-flex flex-column';
+  card.className = 'fb-post d-flex flex-column';
 
   // Cabecera: foto, nombre y fecha
   const headerDiv = document.createElement('div');
@@ -134,10 +132,11 @@ function buildPostHTML(post) {
 `;
   actionsDiv.appendChild(likeCountSpan);
 
-  // Comentarios (fijo o dinámico si tuvieras datos)
+  // Comentarios: cantidad real obtenida de la API
+  const commentsCount = post.comments?.summary?.total_count ?? 0;
   const commentsCountSpan = document.createElement('span');
   commentsCountSpan.className = 'fb-comments-count';
-  commentsCountSpan.textContent = '1 comments'; // Ajusta según datos reales
+  commentsCountSpan.textContent = `${commentsCount} ${commentsCount === 1 ? 'comment' : 'comments'}`;
   actionsDiv.appendChild(commentsCountSpan);
 
   // Botón "Share"
