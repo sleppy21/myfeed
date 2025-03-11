@@ -60,7 +60,6 @@ body {
   min-height: calc(100vh - 70px); /* Ocupa toda la altura de la pantalla menos el navbar */
   background-color: #212021; /* Color oscuro */
   color: #fff;
-  /* Se elimina el transform para evitar desplazamientos innecesarios */
 }
 
 /* Contenido principal: se añade margen izquierdo para dejar espacio al sidebar fijo */
@@ -68,24 +67,6 @@ body {
   flex: 1;
   padding: 100px; /* Ajusta según tu diseño */
   margin-left: 400px; /* Debe ser igual al ancho de la sidebar */
-}
-
-/* Animación de fade-in para publicaciones */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Contenedor de publicaciones usando grid para 3 columnas */
-#posts {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 30px;
-}
-
-/* Cada tarjeta (grid item) */
-.post-col {
-  animation: fadeIn 0.5s ease-in-out;
 }
 
 /* Fondo contenedor de posts */
@@ -97,15 +78,38 @@ body {
   border: 3px solid #f7f6f7;
 }
 
+/* ===== Layout de publicaciones estilo “masonry” en 3 columnas ===== */
+#posts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;     /* Espacio horizontal entre columnas */
+}
+
+/* Cada tarjeta se comporta como bloque “evitando quiebres” */
+.post-col {
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 30px;
+  vertical-align: top;
+  break-inside: avoid;  /* Evita que la tarjeta se parta entre columnas */
+}
+
+/* Animación de fade-in para publicaciones */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* ===== Estilos de la Tarjeta de Publicación ===== */
 .fb-post {
-  width: 100%;              /* Ocupa el 100% del contenedor .post-col */
+  width: 100%;
   box-sizing: border-box;
   background-color: #fefeff;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  animation: fadeIn 0.5s ease-in-out;
 }
 .fb-post:hover {
   transform: translateY(-3px);
@@ -196,7 +200,7 @@ body {
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.23); /* Pequeña sombra */
-  transform: translate(-200px, 37px);
+  transform: translate(-220px, 37px);
 }
 .fb-post-share-btn:hover {
   background-color: #d8dadf67; /* Gris un poco más oscuro */
