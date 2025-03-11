@@ -1,35 +1,38 @@
-const accessToken = 'EAASZCQLWDkywBOZBD4uw5j0hbF1MvnvD5ZBZABcKN8NShpZAjeT6YhZCRoFNM9VBIGERgtfalwJIDQoryyp0Xnt7o7XH7hVN5eGDmgwKx1N6qwiEWTkE5bWVu2kzsZAVHYuxUKHZBNoaxqfN4PC3d0W3xXa5Y8XHoDm19j9gdZBK5vriugTVEZAPLZCisTrP7ZC5bZCckyyYzxcLRP1aGnSM4WwZDZD';
+// scripts/script.js
+
+const accessToken = 'EAASZCQLWDkywBO8BIcCI8O8ZBAGQMffAfNeIs3pZCwEnqAIpVBEAZA59Ee8uR1DiF6RUVfXVVHm0bJes6P5jUCbQcByAsZCyx2hfLIa3tMYamMYg0nI2CWts9ZBNQrN9cak1JeOYLJVnqzsQFhAK2PYkHEoZBdbsXTJZCi1fmRrOgoTWHSSCarF4akat';
 const apiVersion = 'v16.0';
 
-// 1. Endpoint para obtener el perfil (nombre, foto)
+// Endpoints para obtener datos de Facebook
 const profileEndpoint = `https://graph.facebook.com/${apiVersion}/me?fields=name,picture.width(60).height(60)&access_token=${accessToken}`;
 
-// 2. Endpoint para obtener las publicaciones con reacciones por tipo
-// Usamos "as()" para renombrar cada set de reacciones
 const postsEndpoint = `
-https://graph.facebook.com/${apiVersion}/me/posts?fields=
-id,
-message,
-created_time,
-full_picture,
-permalink_url,
-shares,
-reactions.type(LIKE).summary(true).limit(0).as(like_reactions),
-reactions.type(LOVE).summary(true).limit(0).as(love_reactions),
-reactions.type(HAHA).summary(true).limit(0).as(haha_reactions),
-reactions.type(WOW).summary(true).limit(0).as(wow_reactions),
-reactions.type(SAD).summary(true).limit(0).as(sad_reactions),
-reactions.type(ANGRY).summary(true).limit(0).as(angry_reactions)
+https://graph.facebook.com/${apiVersion}/me/posts?fields=\
+id,\
+message,\
+created_time,\
+full_picture,\
+permalink_url,\
+shares,\
+reactions.type(LIKE).summary(true).limit(0).as(like_reactions),\
+reactions.type(LOVE).summary(true).limit(0).as(love_reactions),\
+reactions.type(HAHA).summary(true).limit(0).as(haha_reactions),\
+reactions.type(WOW).summary(true).limit(0).as(wow_reactions),\
+reactions.type(SAD).summary(true).limit(0).as(sad_reactions),\
+reactions.type(ANGRY).summary(true).limit(0).as(angry_reactions)\
 &access_token=${accessToken}
-`.replace(/\s+/g, ''); 
+`.replace(/\s+/g, '');
 
 let myProfile = null;
+let allPosts = [];
 
+/**
+ * Construye la fila de reacciones para una publicación.
+ */
 function buildReactionsRow(post) {
   const container = document.createElement('div');
   container.className = 'fb-post-reactions';
 
-  // Obtenemos la cuenta de cada tipo de reacción (o 0 si no existe)
   const likeCount = post.like_reactions?.summary?.total_count ?? 0;
   const loveCount = post.love_reactions?.summary?.total_count ?? 0;
   const hahaCount = post.haha_reactions?.summary?.total_count ?? 0;
@@ -40,7 +43,7 @@ function buildReactionsRow(post) {
   function addReaction(iconClass, count) {
     if (count > 0) {
       const span = document.createElement('span');
-      span.className = 'me-3 fb-reaction-item';
+      span.className = 'fb-reaction-item';
       span.innerHTML = `<i class="${iconClass}"></i> ${count}`;
       container.appendChild(span);
     }
@@ -56,25 +59,24 @@ function buildReactionsRow(post) {
   return container;
 }
 
-/* --- Función para construir el HTML de cada post --- */
+/**
+ * Construye la tarjeta HTML para una publicación.
+ */
 function buildPostHTML(post) {
-  // Col contenedor (Bootstrap: col-md-6 para posts más anchos)
+  // Cada tarjeta se coloca en una columna para forzar 3 por fila.
   const col = document.createElement('div');
-  col.className = 'col-md-6 d-flex';
+  col.className = 'post-col d-flex';
 
-  // Tarjeta principal
   const card = document.createElement('div');
-  card.className = 'fb-post card h-100 d-flex flex-column'; 
+  card.className = 'fb-post card h-100 d-flex flex-column';
 
-  // --- Cabecera (foto, nombre y fecha) ---
+  // Cabecera: foto, nombre y fecha
   const headerDiv = document.createElement('div');
   headerDiv.className = 'card-header d-flex flex-column fb-post-header';
 
-  // Contenedor para imagen y nombre en una fila
   const headerTop = document.createElement('div');
   headerTop.className = 'd-flex align-items-center';
 
-  // Foto de perfil
   if (myProfile?.picture?.data?.url) {
     const authorImg = document.createElement('img');
     authorImg.src = myProfile.picture.data.url;
@@ -82,7 +84,6 @@ function buildPostHTML(post) {
     authorImg.className = 'fb-post-author-pic me-2';
     headerTop.appendChild(authorImg);
   }
-  // Nombre del autor
   if (myProfile?.name) {
     const authorName = document.createElement('div');
     authorName.className = 'fw-bold';
@@ -92,7 +93,6 @@ function buildPostHTML(post) {
   
   headerDiv.appendChild(headerTop);
 
-  // Fecha (ahora justo debajo del nombre)
   if (post.created_time) {
     const dateEl = document.createElement('div');
     dateEl.className = 'fb-post-date';
@@ -103,11 +103,10 @@ function buildPostHTML(post) {
 
   card.appendChild(headerDiv);
 
-  // --- Cuerpo de la tarjeta ---
+  // Cuerpo de la tarjeta
   const bodyDiv = document.createElement('div');
   bodyDiv.className = 'card-body fb-post-body d-flex flex-column';
 
-  // Mensaje / descripción
   if (post.message) {
     const msgEl = document.createElement('p');
     msgEl.className = 'fb-post-message mb-2';
@@ -115,7 +114,6 @@ function buildPostHTML(post) {
     bodyDiv.appendChild(msgEl);
   }
 
-  // Imagen (si existe)
   if (post.full_picture) {
     const imgEl = document.createElement('img');
     imgEl.src = post.full_picture;
@@ -124,43 +122,43 @@ function buildPostHTML(post) {
     bodyDiv.appendChild(imgEl);
   }
 
-  // Sección de reacciones
   const reactionsRow = buildReactionsRow(post);
   if (reactionsRow.children.length > 0) {
     bodyDiv.appendChild(reactionsRow);
   }
 
-  // Botón para compartir (abre el post en Facebook)
   if (post.permalink_url) {
     const shareBtn = document.createElement('a');
-    shareBtn.className = 'fb-post-share-btn mt-auto'; 
+    shareBtn.className = 'fb-post-share-btn';
     shareBtn.href = post.permalink_url;
     shareBtn.target = '_blank';
-    // Ícono de compartir (Bootstrap Icons) con texto "Compartir"
-    shareBtn.innerHTML = `<i class="bi bi-share-fill"></i> Compartir`;
+    // Se usa un ícono más elegante (bi-share) y el botón es de ancho reducido
+    shareBtn.innerHTML = `<i class="bi bi-share"></i> Compartir`;
     bodyDiv.appendChild(shareBtn);
   }
 
   card.appendChild(bodyDiv);
   col.appendChild(card);
-
   return col;
 }
 
-/* --- Renderizar todos los posts --- */
+/**
+ * Renderiza las publicaciones en la página.
+ */
 function renderPosts(data) {
   const postsContainer = document.getElementById('posts');
   postsContainer.innerHTML = '';
-
-  data.data.forEach(post => {
+  data.forEach(post => {
     const postHTML = buildPostHTML(post);
     postsContainer.appendChild(postHTML);
   });
 }
 
-/* --- Inicializar la carga de perfil y publicaciones --- */
+/**
+ * Inicializa el feed de Facebook.
+ */
 function initFacebookFeed() {
-  // Primero obtenemos el perfil
+  document.getElementById('message').textContent = 'Cargando publicaciones, por favor espera...';
   fetch(profileEndpoint)
     .then(resp => {
       if (!resp.ok) {
@@ -169,8 +167,7 @@ function initFacebookFeed() {
       return resp.json();
     })
     .then(profileData => {
-      myProfile = profileData; // Guardamos la info del perfil
-      // Luego, obtenemos las publicaciones
+      myProfile = profileData;
       return fetch(postsEndpoint);
     })
     .then(resp => {
@@ -180,8 +177,9 @@ function initFacebookFeed() {
       return resp.json();
     })
     .then(postsData => {
+      allPosts = postsData.data || [];
       document.getElementById('message').textContent = '';
-      renderPosts(postsData);
+      renderPosts(allPosts);
     })
     .catch(err => {
       console.error('Error:', err);
@@ -189,9 +187,29 @@ function initFacebookFeed() {
     });
 }
 
+/**
+ * Función para refrescar las publicaciones.
+ */
+function refreshPosts() {
+  initFacebookFeed();
+}
+
+/**
+ * Función para filtrar publicaciones (ejemplo: mostrar solo publicaciones con mensaje largo).
+ */
+function filterPosts() {
+  const filtered = allPosts.filter(post => post.message && post.message.length > 50);
+  renderPosts(filtered);
+}
+
+// Inicialización del feed al cargar la página.
 initFacebookFeed();
 
-/* (Opcional) Cerrar el modal si lo usas */
+// Eventos para los botones adicionales
+document.getElementById('refreshBtn').addEventListener('click', refreshPosts);
+document.getElementById('filterBtn').addEventListener('click', filterPosts);
+
+// Modal para ver detalles adicionales (por ejemplo, videos)
 const modal = document.getElementById('videoModal');
 const modalClose = document.getElementById('modalClose');
 if (modalClose) {
@@ -199,3 +217,17 @@ if (modalClose) {
     modal.style.display = 'none';
   });
 }
+
+// Función adicional para mostrar contenido en el modal (ejemplo)
+function showModal(content) {
+  const modalBody = document.getElementById('modalBody');
+  modalBody.innerHTML = content;
+  modal.style.display = 'flex';
+}
+
+// Cierra el modal al hacer clic fuera de él.
+window.addEventListener('click', (e) => {
+  if (e.target === modal) {
+    modal.style.display = 'none';
+  }
+});

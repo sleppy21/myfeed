@@ -9,19 +9,45 @@ body {
 
 /* Barra lateral */
 .sidebar {
-  min-height: 100vh; /* Para que ocupe toda la altura de la pantalla */
-  background-color: #282424; /* Color de fondo actualizado */
+  min-height: 100vh; /* Ocupa toda la altura de la pantalla */
+  background-color: #282424; /* Color oscuro */
+  color: #fff;
+  padding: 20px;
+}
+
+/* Animación de fade-in para publicaciones */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Contenedor de publicaciones: se usan 3 columnas con espacio */
+#posts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+/* Cada columna ocupará el 33.33% del contenedor (menos el gap) */
+.post-col {
+  flex: 0 0 calc(33.33% - 20px);
+  max-width: calc(33.33% - 20px);
+  margin-bottom: 20px;
+  animation: fadeIn 0.5s ease-in-out;
 }
 
 /* ===== Estilos de la Tarjeta de Publicación ===== */
-
-/* Contenedor principal de la tarjeta */
 .fb-post {
+  width: 100%;              /* Ocupa el 100% del contenedor .post-col */
+  box-sizing: border-box;   /* Incluye padding y border en el ancho */
   background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
   overflow: hidden;
-  transition: transform 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 .fb-post:hover {
   transform: translateY(-3px);
@@ -31,8 +57,6 @@ body {
 /* Cabecera: foto, nombre y fecha */
 .fb-post-header {
   background-color: #fff;
-  /* Se quita la línea separadora */
-  /* border-bottom: 1px solid #ddd; */
   padding: 10px;
 }
 .fb-post-author-pic {
@@ -42,7 +66,7 @@ body {
   object-fit: cover;
 }
 
-/* Fecha (ahora en la cabecera, justo debajo del nombre) */
+/* Fecha */
 .fb-post-date {
   font-size: 0.75rem;
   color: #606770;
@@ -52,23 +76,24 @@ body {
 /* Cuerpo de la tarjeta */
 .fb-post-body {
   padding: 15px;
-  flex: 1 1 auto; /* Para que crezca */
+  flex: 1 1 auto;
 }
 
 /* Mensaje de la publicación */
 .fb-post-message {
   font-size: 0.95rem;
   line-height: 1.4;
-  white-space: pre-line; /* Respeta saltos de línea */
+  white-space: pre-line;
 }
 
-/* Imagen */
+/* Imagen de la publicación */
 .fb-post-image {
   width: 100%;
   max-height: 400px;
   object-fit: cover;
   border-radius: 6px;
   display: block;
+  margin-bottom: 10px;
 }
 
 /* Reacciones */
@@ -78,31 +103,33 @@ body {
 .fb-reaction-item {
   font-size: 1rem;
   vertical-align: middle;
+  margin-right: 10px;
 }
 
-/* Botón de compartir (mejorado con ícono y texto) */
+/* Botón de compartir actualizado */
 .fb-post-share-btn {
-  width: auto;
-  height: 40px;
-  background-color: #1877f2; /* Azul FB */
-  color: #fff;
-  border-radius: 6px;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  background-color: #888888; /* Gris elegante */
+  color: #fff;
+  border-radius: 6px;
   text-decoration: none;
   transition: background-color 0.2s;
-  padding: 0 10px;
+  padding: 5px 10px;
+  width: auto;
+  max-width: 150px;
+  margin-top: 10px;
 }
 .fb-post-share-btn:hover {
-  background-color: #166fe5;
+  background-color: #777777;
 }
 .fb-post-share-btn i {
   font-size: 1.2rem;
   margin-right: 4px;
 }
 
-/* ===== Modal (opcional) ===== */
+/* Modal */
 .modal {
   display: none;
   position: fixed; 
@@ -115,7 +142,6 @@ body {
   justify-content: center;
   align-items: center;
 }
-
 .modal .modal-content {
   background-color: #fff;
   color: #000;
@@ -127,7 +153,6 @@ body {
   position: relative;
   padding: 20px;
 }
-
 .modal .modal-close {
   position: absolute;
   top: 10px;
@@ -137,4 +162,12 @@ body {
   color: #000;
   font-size: 1.2rem;
   cursor: pointer;
+}
+
+/* Animaciones para botones */
+button {
+  transition: background-color 0.3s, transform 0.2s;
+}
+button:hover {
+  transform: scale(1.05);
 }
