@@ -1,128 +1,163 @@
-// Coloca tu token de acceso con los permisos necesarios (user_posts, public_profile, etc.)
-// Asegúrate de que el token no haya expirado.
-const accessToken = 'TU_TOKEN_DE_FACEBOOK';
-
-// Versión de la API (ajústala a la que uses en tu app)
+// Pon aquí tu token de acceso con los permisos necesarios
+const accessToken = 'EAASZCQLWDkywBOyNP5eHrefvLIbVjRbGfKZALcf1n3W5oIXSxXGvnq89kDusZCGmcjYynOeebgicD1mTxjLzlKthqwaT7zyMjZANGspBle300xqBwdtOj7YLjj1rdqaMowI1HyoVfYpPZAWWBwZA3TenUM9F8QBp9dzl18BGYRaHZCLO7SNdlEWqIjkdd61yZBrDZC7xOn7QQS5jX3KlWQwZDZD';
 const apiVersion = 'v16.0';
 
-/*
-  Endpoint para obtener las publicaciones del perfil con:
-  - message (texto/descripción)
-  - created_time (fecha de creación)
-  - full_picture (imagen de la publicación)
-  - permalink_url (link directo a la publicación)
-  - shares (objeto con count de veces compartido)
-  - reactions.summary(true) (para obtener la suma de reacciones)
-*/
-const endpoint = `https://graph.facebook.com/${apiVersion}/me/posts?fields=id,message,created_time,full_picture,permalink_url,shares,reactions.summary(true)&access_token=${accessToken}`;
+// Endpoint para obtener el perfil (nombre y foto)
+const profileEndpoint = `https://graph.facebook.com/${apiVersion}/me?fields=name,picture.width(60).height(60)&access_token=${accessToken}`;
 
-/**
- * Función para renderizar las publicaciones en forma de tarjetas.
- */
-function renderFeed(data) {
-  const feedContainer = document.getElementById('posts');
-  feedContainer.innerHTML = ''; // Limpia el contenido anterior
+// Endpoint para obtener las publicaciones
+// Reacciones se obtienen con "reactions.summary(true)"
+// "message", "created_time", "full_picture", "permalink_url"
+const postsEndpoint = `https://graph.facebook.com/${apiVersion}/me/posts?fields=id,message,created_time,full_picture,permalink_url,reactions.summary(true)&access_token=${accessToken}`;
 
-  // Recorremos cada publicación en data.data
+// Variable global para guardar datos del perfil
+let myProfile = null;
+
+/* --- Función para construir el HTML de cada post --- */
+function buildPostHTML(post) {
+  // Estructura básica de la publicación
+  // 1. Cabecera con foto de perfil y nombre
+  // 2. Fecha de publicación
+  // 3. Texto (message)
+  // 4. Imagen (si existe)
+  // 5. Reacciones
+  // 6. Botón para compartir
+
+  // Contenedor principal de la publicación
+  const postDiv = document.createElement('div');
+  postDiv.className = 'fb-post mb-4 p-3'; // Clase personalizada + margen e interno
+
+  // --- Cabecera (autor + foto) ---
+  const headerDiv = document.createElement('div');
+  headerDiv.className = 'fb-post-header d-flex align-items-center mb-2';
+
+  // Foto de perfil del autor (si se obtuvo del perfil)
+  if (myProfile && myProfile.picture && myProfile.picture.data) {
+    const authorImg = document.createElement('img');
+    authorImg.src = myProfile.picture.data.url;
+    authorImg.alt = myProfile.name;
+    authorImg.className = 'fb-author-pic me-2';
+    headerDiv.appendChild(authorImg);
+  }
+
+  // Nombre del autor y fecha en un contenedor
+  const authorInfo = document.createElement('div');
+
+  // Nombre del autor
+  if (myProfile && myProfile.name) {
+    const authorName = document.createElement('div');
+    authorName.className = 'fw-bold'; // Negrita
+    authorName.textContent = myProfile.name;
+    authorInfo.appendChild(authorName);
+  }
+
+  // Fecha de publicación
+  if (post.created_time) {
+    const dateEl = document.createElement('div');
+    dateEl.className = 'text-muted small';
+    const dateObj = new Date(post.created_time);
+    dateEl.textContent = dateObj.toLocaleString();
+    authorInfo.appendChild(dateEl);
+  }
+
+  headerDiv.appendChild(authorInfo);
+
+  // --- Cuerpo del post ---
+  const bodyDiv = document.createElement('div');
+  bodyDiv.className = 'fb-post-body';
+
+  // Descripción (message)
+  if (post.message) {
+    const msgEl = document.createElement('p');
+    msgEl.className = 'fb-post-text mb-2';
+    msgEl.textContent = post.message;
+    bodyDiv.appendChild(msgEl);
+  }
+
+  // Imagen (si existe)
+  if (post.full_picture) {
+    const imgEl = document.createElement('img');
+    imgEl.src = post.full_picture;
+    imgEl.alt = 'Imagen de la publicación';
+    imgEl.className = 'fb-post-image mb-2';
+    bodyDiv.appendChild(imgEl);
+  }
+
+  // Reacciones
+  if (post.reactions && post.reactions.summary) {
+    const totalReactions = post.reactions.summary.total_count;
+    const reactEl = document.createElement('div');
+    reactEl.className = 'text-muted small';
+    reactEl.textContent = `Reacciones: ${totalReactions}`;
+    bodyDiv.appendChild(reactEl);
+  }
+
+  // Botón para compartir (realmente abre la publicación en Facebook)
+  if (post.permalink_url) {
+    const shareBtn = document.createElement('a');
+    shareBtn.className = 'btn btn-sm btn-primary mt-2';
+    shareBtn.href = post.permalink_url;
+    shareBtn.target = '_blank';
+    shareBtn.textContent = 'Compartir';
+    bodyDiv.appendChild(shareBtn);
+  }
+
+  // Agregar cabecera y cuerpo al contenedor principal
+  postDiv.appendChild(headerDiv);
+  postDiv.appendChild(bodyDiv);
+
+  return postDiv;
+}
+
+/* --- Función para renderizar todas las publicaciones --- */
+function renderPosts(data) {
+  const postsContainer = document.getElementById('posts');
+  postsContainer.innerHTML = '';
+
   data.data.forEach(post => {
-    // Creamos un contenedor para la tarjeta (col-md-4 para 3 columnas en pantallas medianas)
-    const col = document.createElement('div');
-    col.className = 'col-md-4';
-
-    // Tarjeta de Bootstrap
-    const card = document.createElement('div');
-    card.className = 'card fb-post-card h-100';
-
-    // Imagen superior, si existe
-    if (post.full_picture) {
-      const img = document.createElement('img');
-      img.src = post.full_picture;
-      img.alt = 'Publicación de Facebook';
-      img.className = 'card-img-top';
-      card.appendChild(img);
-    }
-
-    // Contenedor de texto
-    const cardBody = document.createElement('div');
-    cardBody.className = 'card-body d-flex flex-column';
-
-    // Mensaje de la publicación (descripción)
-    if (post.message) {
-      const msg = document.createElement('p');
-      msg.className = 'card-text fb-post-message';
-      msg.textContent = post.message;
-      cardBody.appendChild(msg);
-    }
-
-    // Fecha de publicación
-    if (post.created_time) {
-      const dateP = document.createElement('p');
-      dateP.className = 'text-muted small';
-      const dateObj = new Date(post.created_time);
-      dateP.textContent = `Publicado: ${dateObj.toLocaleString()}`;
-      cardBody.appendChild(dateP);
-    }
-
-    // Reacciones (total_count dentro de reactions.summary)
-    if (post.reactions && post.reactions.summary) {
-      const totalReactions = post.reactions.summary.total_count;
-      const reactP = document.createElement('p');
-      reactP.className = 'mb-1';
-      reactP.textContent = `Reacciones: ${totalReactions}`;
-      cardBody.appendChild(reactP);
-    }
-
-    // Compartidos (si existe la propiedad "shares.count")
-    if (post.shares && post.shares.count !== undefined) {
-      const shareP = document.createElement('p');
-      shareP.className = 'mb-1';
-      shareP.textContent = `Compartido: ${post.shares.count} veces`;
-      cardBody.appendChild(shareP);
-    }
-
-    // Botón para ver la publicación en Facebook
-    if (post.permalink_url) {
-      const linkBtn = document.createElement('a');
-      linkBtn.className = 'btn btn-sm btn-outline-primary mt-auto';
-      linkBtn.href = post.permalink_url;
-      linkBtn.target = '_blank';
-      linkBtn.textContent = 'Ver en Facebook';
-      cardBody.appendChild(linkBtn);
-    }
-
-    // Se agrega el body a la tarjeta
-    card.appendChild(cardBody);
-
-    // Se agrega la tarjeta a la columna
-    col.appendChild(card);
-
-    // Se agrega la columna al contenedor
-    feedContainer.appendChild(col);
+    const postHTML = buildPostHTML(post);
+    postsContainer.appendChild(postHTML);
   });
 }
 
-// Llamada a la API de Facebook para obtener las publicaciones
-fetch(endpoint)
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`Error en la solicitud: ${response.statusText}`);
-    }
-    return response.json();
-  })
-  .then(data => {
-    document.getElementById('message').textContent = ''; 
-    renderFeed(data);
-  })
-  .catch(error => {
-    console.error('Error al obtener las publicaciones:', error);
-    document.getElementById('message').textContent = 'Error al cargar las publicaciones. Verifica el token y los permisos.';
-  });
+/* --- Inicializar la carga de perfil y publicaciones --- */
+function initFacebookFeed() {
+  // Primero obtenemos el perfil
+  fetch(profileEndpoint)
+    .then(resp => {
+      if (!resp.ok) {
+        throw new Error(`Error perfil: ${resp.statusText}`);
+      }
+      return resp.json();
+    })
+    .then(profileData => {
+      myProfile = profileData; // Guardamos la info en la variable global
+      // Luego, obtenemos las publicaciones
+      return fetch(postsEndpoint);
+    })
+    .then(resp => {
+      if (!resp.ok) {
+        throw new Error(`Error publicaciones: ${resp.statusText}`);
+      }
+      return resp.json();
+    })
+    .then(postsData => {
+      document.getElementById('message').textContent = '';
+      renderPosts(postsData);
+    })
+    .catch(err => {
+      console.error('Error:', err);
+      document.getElementById('message').textContent = 'Error al cargar las publicaciones. Verifica el token y los permisos.';
+    });
+}
 
-// Ejemplo básico para cerrar el modal (si lo implementas en el futuro)
+initFacebookFeed();
+
+/* (Opcional) Cerrar el modal si lo usas */
 const modal = document.getElementById('videoModal');
 const modalClose = document.getElementById('modalClose');
-if(modalClose){
+if (modalClose) {
   modalClose.addEventListener('click', () => {
-    modal.style.display = "none";
+    modal.style.display = 'none';
   });
 }

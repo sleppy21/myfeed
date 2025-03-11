@@ -1,62 +1,82 @@
-/* Estilo general del body */
+/* ===== Estilos Generales ===== */
 body {
-  background-color: #f8f9fa; /* Un gris claro */
-  color: #212529;
+  background-color: #f0f2f5; /* Color de fondo similar a FB */
+  color: #1c1e21;
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
 }
 
-/* Sidebar */
-.sidebar {
-  background-color: #343a40; /* gris oscuro de Bootstrap */
-  color: #ffffff;
-  min-height: 100vh;
-}
-
-.sidebar h2 {
-  color: #ffffff;
+h1 {
+  color: #1c1e21;
   font-weight: 600;
 }
 
-/* Contenedor principal de tarjetas */
-.fb-post-card {
+/* Mensaje de carga */
+#message {
+  color: #555;
+}
+
+/* ===== Contenedor de Post ===== */
+.fb-post {
+  background-color: #fff;
   border: 1px solid #ddd;
-  border-radius: 6px;
-  overflow: hidden;
-  transition: transform 0.2s ease-in-out;
+  border-radius: 8px;
 }
 
-.fb-post-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+/* Cabecera del post (autor y foto) */
+.fb-post-header {
+  border-bottom: 1px solid #ddd;
 }
 
-/* Imagen en la parte superior de la tarjeta */
-.fb-post-card img {
-  width: 100%;
+.fb-author-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   object-fit: cover;
 }
 
-/* Texto del post */
-.fb-post-message {
-  white-space: pre-line; /* Respeta saltos de línea si los hay */
+/* Cuerpo del post */
+.fb-post-body {
+  margin-top: 8px;
+}
+
+.fb-post-text {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  white-space: pre-line; /* Respeta saltos de línea */
+}
+
+.fb-post-image {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+}
+
+/* Reacciones y botón compartir */
+.btn-primary {
+  background-color: #1877f2; /* Azul típico de FB */
+  border-color: #1877f2;
+}
+.btn-primary:hover {
+  background-color: #166fe5;
+  border-color: #166fe5;
 }
 
 /* ===== Modal (opcional) ===== */
 .modal {
   display: none;
-  position: absolute;
+  position: fixed; /* para que ocupe la pantalla */
   top: 0;
   left: 0;
-  width: 1000px;
+  width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.6);
   z-index: 9999;
   justify-content: center;
   align-items: center;
-  padding-left: 350px;
-  padding-top: 90px;
 }
 
 .modal .modal-content {
