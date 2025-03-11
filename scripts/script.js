@@ -1,5 +1,5 @@
 // Pon aquí tu token de acceso con los permisos necesarios
-const accessToken = 'EAASZCQLWDkywBOyNP5eHrefvLIbVjRbGfKZALcf1n3W5oIXSxXGvnq89kDusZCGmcjYynOeebgicD1mTxjLzlKthqwaT7zyMjZANGspBle300xqBwdtOj7YLjj1rdqaMowI1HyoVfYpPZAWWBwZA3TenUM9F8QBp9dzl18BGYRaHZCLO7SNdlEWqIjkdd61yZBrDZC7xOn7QQS5jX3KlWQwZDZD';
+const accessToken = 'EAASZCQLWDkywBOZBD4uw5j0hbF1MvnvD5ZBZABcKN8NShpZAjeT6YhZCRoFNM9VBIGERgtfalwJIDQoryyp0Xnt7o7XH7hVN5eGDmgwKx1N6qwiEWTkE5bWVu2kzsZAVHYuxUKHZBNoaxqfN4PC3d0W3xXa5Y8XHoDm19j9gdZBK5vriugTVEZAPLZCisTrP7ZC5bZCckyyYzxcLRP1aGnSM4WwZDZD';
 const apiVersion = 'v16.0';
 
 // Endpoint para obtener el perfil (nombre y foto)
@@ -15,23 +15,16 @@ let myProfile = null;
 
 /* --- Función para construir el HTML de cada post --- */
 function buildPostHTML(post) {
-  // Estructura básica de la publicación
-  // 1. Cabecera con foto de perfil y nombre
-  // 2. Fecha de publicación
-  // 3. Texto (message)
-  // 4. Imagen (si existe)
-  // 5. Reacciones
-  // 6. Botón para compartir
-
-  // Contenedor principal de la publicación
+  // Contenedor principal de la publicación (tarjeta)
   const postDiv = document.createElement('div');
-  postDiv.className = 'fb-post mb-4 p-3'; // Clase personalizada + margen e interno
+  postDiv.className = 'fb-post card h-100'; 
+  // h-100 para que la tarjeta ocupe la altura total de la columna
 
-  // --- Cabecera (autor + foto) ---
+  // Cabecera de la tarjeta
   const headerDiv = document.createElement('div');
-  headerDiv.className = 'fb-post-header d-flex align-items-center mb-2';
+  headerDiv.className = 'card-header d-flex align-items-center';
 
-  // Foto de perfil del autor (si se obtuvo del perfil)
+  // Foto y nombre del autor
   if (myProfile && myProfile.picture && myProfile.picture.data) {
     const authorImg = document.createElement('img');
     authorImg.src = myProfile.picture.data.url;
@@ -39,34 +32,28 @@ function buildPostHTML(post) {
     authorImg.className = 'fb-author-pic me-2';
     headerDiv.appendChild(authorImg);
   }
-
-  // Nombre del autor y fecha en un contenedor
-  const authorInfo = document.createElement('div');
-
-  // Nombre del autor
   if (myProfile && myProfile.name) {
     const authorName = document.createElement('div');
-    authorName.className = 'fw-bold'; // Negrita
+    authorName.className = 'fw-bold';
     authorName.textContent = myProfile.name;
-    authorInfo.appendChild(authorName);
+    headerDiv.appendChild(authorName);
   }
+  postDiv.appendChild(headerDiv);
+
+  // Cuerpo de la tarjeta
+  const bodyDiv = document.createElement('div');
+  bodyDiv.className = 'card-body d-flex flex-column';
 
   // Fecha de publicación
   if (post.created_time) {
     const dateEl = document.createElement('div');
-    dateEl.className = 'text-muted small';
+    dateEl.className = 'text-muted small mb-2';
     const dateObj = new Date(post.created_time);
     dateEl.textContent = dateObj.toLocaleString();
-    authorInfo.appendChild(dateEl);
+    bodyDiv.appendChild(dateEl);
   }
 
-  headerDiv.appendChild(authorInfo);
-
-  // --- Cuerpo del post ---
-  const bodyDiv = document.createElement('div');
-  bodyDiv.className = 'fb-post-body';
-
-  // Descripción (message)
+  // Descripción
   if (post.message) {
     const msgEl = document.createElement('p');
     msgEl.className = 'fb-post-text mb-2';
@@ -87,36 +74,44 @@ function buildPostHTML(post) {
   if (post.reactions && post.reactions.summary) {
     const totalReactions = post.reactions.summary.total_count;
     const reactEl = document.createElement('div');
-    reactEl.className = 'text-muted small';
+    reactEl.className = 'text-muted small mb-2';
     reactEl.textContent = `Reacciones: ${totalReactions}`;
     bodyDiv.appendChild(reactEl);
   }
 
-  // Botón para compartir (realmente abre la publicación en Facebook)
+  // Botón para compartir (en realidad abre la publicación en Facebook)
   if (post.permalink_url) {
     const shareBtn = document.createElement('a');
-    shareBtn.className = 'btn btn-sm btn-primary mt-2';
+    shareBtn.className = 'btn btn-sm btn-primary mt-auto';
     shareBtn.href = post.permalink_url;
     shareBtn.target = '_blank';
     shareBtn.textContent = 'Compartir';
     bodyDiv.appendChild(shareBtn);
   }
 
-  // Agregar cabecera y cuerpo al contenedor principal
-  postDiv.appendChild(headerDiv);
   postDiv.appendChild(bodyDiv);
-
   return postDiv;
 }
 
-/* --- Función para renderizar todas las publicaciones --- */
+/* --- Función para renderizar todas las publicaciones en 3 columnas --- */
 function renderPosts(data) {
   const postsContainer = document.getElementById('posts');
-  postsContainer.innerHTML = '';
+  postsContainer.innerHTML = ''; // Limpia
 
   data.data.forEach(post => {
+    // Creamos la columna
+    const col = document.createElement('div');
+    col.className = 'col-md-4 d-flex'; 
+    // d-flex para que la tarjeta crezca en altura uniformemente si deseas
+
+    // Construimos el post
     const postHTML = buildPostHTML(post);
-    postsContainer.appendChild(postHTML);
+
+    // Insertamos la tarjeta en la columna
+    col.appendChild(postHTML);
+
+    // Insertamos la columna en el row (#posts)
+    postsContainer.appendChild(col);
   });
 }
 
@@ -131,7 +126,7 @@ function initFacebookFeed() {
       return resp.json();
     })
     .then(profileData => {
-      myProfile = profileData; // Guardamos la info en la variable global
+      myProfile = profileData; // Guardamos la info del perfil
       // Luego, obtenemos las publicaciones
       return fetch(postsEndpoint);
     })

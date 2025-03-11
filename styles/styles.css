@@ -1,6 +1,6 @@
 /* ===== Estilos Generales ===== */
 body {
-  background-color: #f0f2f5; /* Color de fondo similar a FB */
+  background-color: #f0f2f5; /* Fondo gris claro estilo Facebook */
   color: #1c1e21;
   font-family: Arial, sans-serif;
   margin: 0;
@@ -17,15 +17,16 @@ h1 {
   color: #555;
 }
 
-/* ===== Contenedor de Post ===== */
+/* ===== Estilos para las publicaciones ===== */
 .fb-post {
   background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
 }
 
-/* Cabecera del post (autor y foto) */
-.fb-post-header {
+/* Cabecera del post (foto + nombre) */
+.card-header {
+  background-color: #fff;
   border-bottom: 1px solid #ddd;
 }
 
@@ -36,9 +37,9 @@ h1 {
   object-fit: cover;
 }
 
-/* Cuerpo del post */
-.fb-post-body {
-  margin-top: 8px;
+/* Cuerpo de la tarjeta */
+.card-body {
+  padding: 15px;
 }
 
 .fb-post-text {
@@ -55,9 +56,9 @@ h1 {
   display: block;
 }
 
-/* Reacciones y botón compartir */
+/* Botón para compartir */
 .btn-primary {
-  background-color: #1877f2; /* Azul típico de FB */
+  background-color: #1877f2;
   border-color: #1877f2;
 }
 .btn-primary:hover {
@@ -65,10 +66,16 @@ h1 {
   border-color: #166fe5;
 }
 
+/* Espaciado entre columnas */
+.row.g-4 > * {
+  margin-bottom: 0; /* Bootstrap g-4 ya maneja gutters horizontales */
+  /* Si deseas espacio vertical extra, usa mb-4 en .col-md-4 */
+}
+
 /* ===== Modal (opcional) ===== */
 .modal {
   display: none;
-  position: fixed; /* para que ocupe la pantalla */
+  position: fixed; 
   top: 0;
   left: 0;
   width: 100%;
