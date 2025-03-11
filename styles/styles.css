@@ -41,19 +41,17 @@ body {
 
 /* Barra lateral */
 .sidebar {
-  width: var(--sidebar-width); /* Se usa la variable para el ancho */
+  width: 400px; /* Ajusta este valor para cambiar el ancho del sidebar */
   min-height: 100vh; /* Ocupa toda la altura de la pantalla */
   background-color: #212021; /* Color oscuro */
   color: #fff;
-  transform: translate(0px, -15px); /* Desplaza 50px a la derecha y -15px arriba */
-  padding: 20px; /* Espaciado interno */
+  transform: translate(0, -15px);
+  padding: 20px;
 }
 
-/* Contenido principal: se ajusta para dejar espacio al sidebar */
 .main-content {
   flex: 1;
-  padding: 20px;
-  margin-left: var(--sidebar-width); /* Desplaza el contenido a la derecha del sidebar */
+  padding: 100px; /* Ajusta según tu diseño */
 }
 
 /* Animación de fade-in para publicaciones */
@@ -62,7 +60,7 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Contenedor de publicaciones: se usan 3 columnas con espacio */
+/* Contenedor de publicaciones */
 #posts {
   display: flex;
   flex-wrap: wrap;
@@ -77,6 +75,7 @@ body {
   animation: fadeIn 0.5s ease-in-out;
 }
 
+/* Fondo contenedor de posts */
 .fondo {
   background-color: #fbfafb;
   transform: translate(-10px, -35px);
@@ -88,7 +87,7 @@ body {
 /* ===== Estilos de la Tarjeta de Publicación ===== */
 .fb-post {
   width: 100%;              /* Ocupa el 100% del contenedor .post-col */
-  box-sizing: border-box;   /* Incluye padding en el ancho */
+  box-sizing: border-box;
   background-color: #fefeff;
   overflow: hidden;
   display: flex;
@@ -103,7 +102,7 @@ body {
 /* Cabecera: foto, nombre y fecha */
 .fb-post-header {
   background-color: #fff;
-  padding: 10px;
+  padding: 15px;
 }
 .fb-post-author-pic {
   width: 40px;
@@ -112,12 +111,10 @@ body {
   object-fit: cover;
   transform: translate(0, 5px);
 }
-
-/* Fecha */
 .fb-post-date {
   font-size: 0.75rem;
   color: #60677098;
-  margin-top: 4px;
+  margin-top: 7px;
   transform: translate(48px, -15px);
 }
 
@@ -125,9 +122,8 @@ body {
 .fb-post-body {
   padding: 15px;
   flex: 1 1 auto;
+  transform: translate(0px, -40px);
 }
-
-/* Mensaje de la publicación */
 .fb-post-message {
   font-size: 0.95rem;
   line-height: 1.4;
@@ -139,42 +135,63 @@ body {
   width: 100%;
   max-height: 400px;
   object-fit: cover;
-  border-radius: 6px;
   display: block;
   margin-bottom: 10px;
 }
 
-/* Reacciones */
-.fb-post-reactions {
-  margin: 10px 0;
-}
-.fb-reaction-item {
-  font-size: 1rem;
-  vertical-align: middle;
-  margin-right: 10px;
+/* ===== Sección de acciones: "Me gusta", comentarios, compartir ===== */
+.fb-post-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* like/comments a la izq, share a la der */
+  margin-top: -3px;
+  padding: 0 10px 10px 10px;
+  font-size: 14px;
+  color: #606770;
 }
 
-/* Botón de compartir actualizado */
+/* "Me gusta" con ícono y número */
+.fb-like-count {
+  display: inline-flex;
+  align-items: center;
+}
+.fb-like-icon {
+  font-size: 16px;      /* Tamaño del icono de "Me gusta" */
+  color: #1877F2;       /* Azul de Facebook */
+  margin-right: 6px;
+}
+.like-text {
+  color: #606770; /* Texto gris */
+}
+
+/* Texto de comentarios */
+.fb-comments-count {
+  margin-left: 15px;
+  color: #606770;
+}
+
+/* Botón de compartir estilo "FB" */
 .fb-post-share-btn {
   display: inline-flex;
   align-items: center;
-  justify-content: flex-start;
-  background-color: #888888; /* Gris elegante */
-  color: #fff;
-  border-radius: 6px;
-  text-decoration: none;
-  transition: background-color 0.2s;
+  background-color: #ffffff; /* Gris claro de FB */
+  color: #050505;
+  border-radius: 3px;
   padding: 5px 10px;
-  width: auto;
-  max-width: 150px;
-  margin-top: 10px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.23); /* Pequeña sombra */
+  transform: translate(-200px, 37px);
 }
 .fb-post-share-btn:hover {
-  background-color: #777777;
+  background-color: #d8dadf67; /* Gris un poco más oscuro */
 }
 .fb-post-share-btn i {
-  font-size: 1.2rem;
-  margin-right: 4px;
+  margin-right: 5px;
+  font-size: 16px;
+  color: #606770; /* Ícono en gris */
 }
 
 /* Modal */
@@ -218,4 +235,17 @@ button {
 }
 button:hover {
   transform: scale(1.05);
+}
+.fb-like-icon {
+  margin-right: 6px; /* Espacio entre el ícono y el texto */
+  vertical-align: middle; /* Centra verticalmente con el texto */
+}
+.like-text {
+  color: #606770; /* Gris, como Facebook */
+}
+
+.menu-lateral{
+  text-align: center;
+  padding-top: 5px;
+  font-size: 15px;
 }

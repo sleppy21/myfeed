@@ -1,3 +1,5 @@
+/* scripts/script.js */
+
 const accessToken = 'EAASZCQLWDkywBO8BIcCI8O8ZBAGQMffAfNeIs3pZCwEnqAIpVBEAZA59Ee8uR1DiF6RUVfXVVHm0bJes6P5jUCbQcByAsZCyx2hfLIa3tMYamMYg0nI2CWts9ZBNQrN9cak1JeOYLJVnqzsQFhAK2PYkHEoZBdbsXTJZCi1fmRrOgoTWHSSCarF4akat';
 const apiVersion = 'v16.0';
 
@@ -25,39 +27,6 @@ let myProfile = null;
 let allPosts = [];
 
 /**
- * Construye la fila de reacciones para una publicación.
- */
-function buildReactionsRow(post) {
-  const container = document.createElement('div');
-  container.className = 'fb-post-reactions';
-
-  const likeCount = post.like_reactions?.summary?.total_count ?? 0;
-  const loveCount = post.love_reactions?.summary?.total_count ?? 0;
-  const hahaCount = post.haha_reactions?.summary?.total_count ?? 0;
-  const wowCount  = post.wow_reactions?.summary?.total_count ?? 0;
-  const sadCount  = post.sad_reactions?.summary?.total_count ?? 0;
-  const angryCount= post.angry_reactions?.summary?.total_count ?? 0;
-
-  function addReaction(iconClass, count) {
-    if (count > 0) {
-      const span = document.createElement('span');
-      span.className = 'fb-reaction-item';
-      span.innerHTML = `<i class="${iconClass}"></i> ${count}`;
-      container.appendChild(span);
-    }
-  }
-
-  addReaction('bi bi-hand-thumbs-up', likeCount);
-  addReaction('bi bi-heart-fill', loveCount);
-  addReaction('bi bi-emoji-laughing', hahaCount);
-  addReaction('bi bi-emoji-surprised', wowCount);
-  addReaction('bi bi-emoji-frown', sadCount);
-  addReaction('bi bi-emoji-angry', angryCount);
-
-  return container;
-}
-
-/**
  * Construye la tarjeta HTML para una publicación.
  */
 function buildPostHTML(post) {
@@ -65,7 +34,7 @@ function buildPostHTML(post) {
   const col = document.createElement('div');
   col.className = 'post-col d-flex';
 
-  // Eliminamos la clase "card" para evitar los estilos de borde predeterminados de Bootstrap
+  // Eliminamos la clase "card" para no heredar bordes de Bootstrap
   const card = document.createElement('div');
   card.className = 'fb-post h-100 d-flex flex-column';
 
@@ -76,6 +45,7 @@ function buildPostHTML(post) {
   const headerTop = document.createElement('div');
   headerTop.className = 'd-flex align-items-center';
 
+  // Imagen de perfil
   if (myProfile?.picture?.data?.url) {
     const authorImg = document.createElement('img');
     authorImg.src = myProfile.picture.data.url;
@@ -83,6 +53,8 @@ function buildPostHTML(post) {
     authorImg.className = 'fb-post-author-pic me-2';
     headerTop.appendChild(authorImg);
   }
+
+  // Nombre de perfil
   if (myProfile?.name) {
     const authorName = document.createElement('div');
     authorName.className = 'fw-bold';
@@ -92,6 +64,7 @@ function buildPostHTML(post) {
   
   headerDiv.appendChild(headerTop);
 
+  // Fecha de la publicación
   if (post.created_time) {
     const dateEl = document.createElement('div');
     dateEl.className = 'fb-post-date';
@@ -106,6 +79,7 @@ function buildPostHTML(post) {
   const bodyDiv = document.createElement('div');
   bodyDiv.className = 'fb-post-body d-flex flex-column';
 
+  // Mensaje
   if (post.message) {
     const msgEl = document.createElement('p');
     msgEl.className = 'fb-post-message mb-2';
@@ -113,6 +87,7 @@ function buildPostHTML(post) {
     bodyDiv.appendChild(msgEl);
   }
 
+  // Imagen de la publicación
   if (post.full_picture) {
     const imgEl = document.createElement('img');
     imgEl.src = post.full_picture;
@@ -121,23 +96,66 @@ function buildPostHTML(post) {
     bodyDiv.appendChild(imgEl);
   }
 
-  const reactionsRow = buildReactionsRow(post);
-  if (reactionsRow.children.length > 0) {
-    bodyDiv.appendChild(reactionsRow);
-  }
+  // Contenedor de acciones (reacciones + comentarios + compartir)
+  const actionsDiv = document.createElement('div');
+  actionsDiv.className = 'fb-post-actions';
 
+  // Suma total de reacciones
+  const totalReactions = 
+    (post.like_reactions?.summary?.total_count ?? 0) +
+    (post.love_reactions?.summary?.total_count ?? 0) +
+    (post.haha_reactions?.summary?.total_count ?? 0) +
+    (post.wow_reactions?.summary?.total_count ?? 0) +
+    (post.sad_reactions?.summary?.total_count ?? 0) +
+    (post.angry_reactions?.summary?.total_count ?? 0);
+
+  // "Me gusta" con ícono oficial + contador
+  const likeCountSpan = document.createElement('span');
+  likeCountSpan.className = 'fb-like-count';
+  likeCountSpan.innerHTML = `
+  <svg width="20" height="20" viewBox="0 0 40 40" class="fb-like-icon">
+    <defs>
+      <linearGradient id="thumbGradient" x1="50%" x2="50%" y1="0%" y2="100%">
+        <stop offset="0%" stop-color="#18AFFF"/>
+        <stop offset="100%" stop-color="#0062E0"/>
+      </linearGradient>
+    </defs>
+    <!-- Círculo con degradado azul -->
+    <circle fill="url(#thumbGradient)" cx="20" cy="20" r="20"/>
+    <!-- Grupo que inserta el ícono del pulgar blanco -->
+    <g transform="translate(0,0) scale(0.7)">
+      <svg viewBox="-3 -3 20 20" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#fff" d="m20.27 16.265l.705-4.08a1.666 1.666 0 0 0-1.64-1.95h-5.181a.833.833 0 0 1-.822-.969l.663-4.045a4.8 4.8 0 0 0-.09-1.973a1.64 1.64 0 0 0-1.092-1.137l-.145-.047a1.35 1.35 0 0 0-.994.068c-.34.164-.588.463-.68.818l-.476 1.834a7.6 7.6 0 0 1-.656 1.679c-.415.777-1.057 1.4-1.725 1.975l-1.439 1.24a1.67 1.67 0 0 0-.572 1.406l.812 9.393A1.666 1.666 0 0 0 8.597 22h4.648c3.482 0 6.453-2.426 7.025-5.735"/>
+        <path fill="#fff" fill-rule="evenodd" d="M2.968 9.485a.75.75 0 0 1 .78.685l.97 11.236a1.237 1.237 0 1 1-2.468.107V10.234a.75.75 0 0 1 .718-.749" clip-rule="evenodd"/>
+      </svg>
+    </g>
+  </svg>
+  <span class="like-text">${totalReactions}</span>
+`;
+  actionsDiv.appendChild(likeCountSpan);
+
+  // Comentarios (fijo o dinámico si tuvieras datos)
+  const commentsCountSpan = document.createElement('span');
+  commentsCountSpan.className = 'fb-comments-count';
+  commentsCountSpan.textContent = '1 comments'; // Ajusta según datos reales
+  actionsDiv.appendChild(commentsCountSpan);
+
+  // Botón "Share"
   if (post.permalink_url) {
     const shareBtn = document.createElement('a');
     shareBtn.className = 'fb-post-share-btn';
     shareBtn.href = post.permalink_url;
     shareBtn.target = '_blank';
-    // Se utiliza un ícono más elegante (bi-share) y el botón es de ancho reducido
-    shareBtn.innerHTML = `<i class="bi bi-share"></i> Compartir`;
-    bodyDiv.appendChild(shareBtn);
+    // Ícono distinto para Share
+    shareBtn.innerHTML = `<i class="bi bi-arrow-up-right"></i> Compartir`;
+    actionsDiv.appendChild(shareBtn);
   }
 
+  // Se añaden las acciones al body
+  bodyDiv.appendChild(actionsDiv);
   card.appendChild(bodyDiv);
   col.appendChild(card);
+
   return col;
 }
 
@@ -186,27 +204,8 @@ function initFacebookFeed() {
     });
 }
 
-/**
- * Función para refrescar las publicaciones.
- */
-function refreshPosts() {
-  initFacebookFeed();
-}
-
-/**
- * Función para filtrar publicaciones (ejemplo: mostrar solo publicaciones con mensaje largo).
- */
-function filterPosts() {
-  const filtered = allPosts.filter(post => post.message && post.message.length > 50);
-  renderPosts(filtered);
-}
-
-// Inicialización del feed al cargar la página.
+// Inicialización del feed al cargar la página
 initFacebookFeed();
-
-// Eventos para los botones adicionales
-document.getElementById('refreshBtn').addEventListener('click', refreshPosts);
-document.getElementById('filterBtn').addEventListener('click', filterPosts);
 
 // Modal para ver detalles adicionales (por ejemplo, videos)
 const modal = document.getElementById('videoModal');
@@ -215,13 +214,6 @@ if (modalClose) {
   modalClose.addEventListener('click', () => {
     modal.style.display = 'none';
   });
-}
-
-// Función adicional para mostrar contenido en el modal (ejemplo)
-function showModal(content) {
-  const modalBody = document.getElementById('modalBody');
-  modalBody.innerHTML = content;
-  modal.style.display = 'flex';
 }
 
 // Cierra el modal al hacer clic fuera de él.
