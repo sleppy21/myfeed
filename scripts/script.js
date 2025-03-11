@@ -151,7 +151,7 @@ function buildPostHTML(post) {
     shareBtn.className = 'fb-post-share-btn';
     shareBtn.href = post.permalink_url;
     shareBtn.target = '_blank';
-    shareBtn.innerHTML = `<i class="bi bi-share"></i> Compartir`;
+    shareBtn.innerHTML = `<i class="bi bi-share"></i> Share`;
     actionsDiv.appendChild(shareBtn);
   }
 
