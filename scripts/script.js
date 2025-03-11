@@ -1,109 +1,128 @@
-// Reemplaza 'TU_FACEBOOK_ACCESS_TOKEN' por tu token de acceso válido de Facebook.
-const API_KEY = '1213168163806063|bhE-VYtghiF3Z5Rsm4wSiZxSM7E';
-// Endpoint base de la Graph API de Facebook para búsquedas.
-const API_BASE = 'https://graph.facebook.com/v15.0/';
+// Coloca tu token de acceso con los permisos necesarios (user_posts, public_profile, etc.)
+// Asegúrate de que el token no haya expirado.
+const accessToken = 'TU_TOKEN_DE_FACEBOOK';
 
-// Número de resultados por solicitud.
-const resultsPerPage = 10;
-let nextPageUrl = null;
+// Versión de la API (ajústala a la que uses en tu app)
+const apiVersion = 'v16.0';
 
-// Función para buscar páginas (p. ej., "perfiles" públicos) por nombre
-function searchProfiles(query) {
-  // Se utiliza el endpoint /search con type=page.
-  const url = `${API_BASE}search?q=${encodeURIComponent(query)}&type=page&fields=id,name,about,fan_count&limit=${resultsPerPage}&access_token=${API_KEY}`;
-  fetch(url)
-    .then(response => response.json())
-    .then(data => {
-      if (data.error) {
-        console.error('Error:', data.error);
-        document.getElementById("results").innerHTML = `<p>Error: ${data.error.message}</p>`;
-        return;
-      }
-      if (data.data && data.data.length > 0) {
-        displayResults(data.data);
-        // Si existe paginación, guardar la URL para cargar más resultados
-        nextPageUrl = data.paging && data.paging.next ? data.paging.next : null;
-        updateLoadMoreButton();
-      } else {
-        document.getElementById("results").innerHTML = `<p>No se encontraron resultados.</p>`;
-      }
-    })
-    .catch(error => {
-      console.error('Error al buscar:', error);
-      document.getElementById("results").innerHTML = `<p>Error al obtener resultados.</p>`;
-    });
-}
+/*
+  Endpoint para obtener las publicaciones del perfil con:
+  - message (texto/descripción)
+  - created_time (fecha de creación)
+  - full_picture (imagen de la publicación)
+  - permalink_url (link directo a la publicación)
+  - shares (objeto con count de veces compartido)
+  - reactions.summary(true) (para obtener la suma de reacciones)
+*/
+const endpoint = `https://graph.facebook.com/${apiVersion}/me/posts?fields=id,message,created_time,full_picture,permalink_url,shares,reactions.summary(true)&access_token=${accessToken}`;
 
-// Función para cargar más resultados (si existen)
-function loadMoreProfiles() {
-  if (!nextPageUrl) return;
-  fetch(nextPageUrl)
-    .then(response => response.json())
-    .then(data => {
-      if (data.data && data.data.length > 0) {
-        displayResults(data.data, true);
-        nextPageUrl = data.paging && data.paging.next ? data.paging.next : null;
-        updateLoadMoreButton();
-      }
-    })
-    .catch(error => {
-      console.error('Error al cargar más resultados:', error);
-    });
-}
+/**
+ * Función para renderizar las publicaciones en forma de tarjetas.
+ */
+function renderFeed(data) {
+  const feedContainer = document.getElementById('posts');
+  feedContainer.innerHTML = ''; // Limpia el contenido anterior
 
-// Actualiza el botón de "Cargar más"
-function updateLoadMoreButton() {
-  const loadMoreContainer = document.getElementById("loadMoreContainer");
-  loadMoreContainer.innerHTML = "";
-  if (nextPageUrl) {
-    const btn = document.createElement("button");
-    btn.textContent = "Cargar más resultados";
-    btn.className = "btn btn-secondary";
-    btn.addEventListener("click", loadMoreProfiles);
-    loadMoreContainer.appendChild(btn);
-  }
-}
+  // Recorremos cada publicación en data.data
+  data.data.forEach(post => {
+    // Creamos un contenedor para la tarjeta (col-md-4 para 3 columnas en pantallas medianas)
+    const col = document.createElement('div');
+    col.className = 'col-md-4';
 
-// Función para mostrar los resultados en la sección "results"
-// Si 'append' es true, se agregan los nuevos resultados sin borrar los existentes
-function displayResults(results, append = false) {
-  const resultsDiv = document.getElementById("results");
-  if (!append) resultsDiv.innerHTML = "";
-  results.forEach(item => {
-    // Crear tarjeta para cada resultado
-    const card = document.createElement("div");
-    card.className = "result-card mb-3 card";
-    card.style.cursor = "pointer";
+    // Tarjeta de Bootstrap
+    const card = document.createElement('div');
+    card.className = 'card fb-post-card h-100';
 
-    const cardBody = document.createElement("div");
-    cardBody.className = "card-body";
+    // Imagen superior, si existe
+    if (post.full_picture) {
+      const img = document.createElement('img');
+      img.src = post.full_picture;
+      img.alt = 'Publicación de Facebook';
+      img.className = 'card-img-top';
+      card.appendChild(img);
+    }
 
-    // Mostrar el nombre de la página
-    const title = document.createElement("h5");
-    title.className = "card-title";
-    title.textContent = item.name || "Sin nombre";
-    cardBody.appendChild(title);
+    // Contenedor de texto
+    const cardBody = document.createElement('div');
+    cardBody.className = 'card-body d-flex flex-column';
 
-    // Mostrar información adicional (por ejemplo, la cantidad de fans o "about")
-    const info = document.createElement("p");
-    info.className = "card-text";
-    info.textContent = item.about ? item.about.substring(0, 100) + "..." : `Fans: ${item.fan_count || 0}`;
-    cardBody.appendChild(info);
+    // Mensaje de la publicación (descripción)
+    if (post.message) {
+      const msg = document.createElement('p');
+      msg.className = 'card-text fb-post-message';
+      msg.textContent = post.message;
+      cardBody.appendChild(msg);
+    }
 
+    // Fecha de publicación
+    if (post.created_time) {
+      const dateP = document.createElement('p');
+      dateP.className = 'text-muted small';
+      const dateObj = new Date(post.created_time);
+      dateP.textContent = `Publicado: ${dateObj.toLocaleString()}`;
+      cardBody.appendChild(dateP);
+    }
+
+    // Reacciones (total_count dentro de reactions.summary)
+    if (post.reactions && post.reactions.summary) {
+      const totalReactions = post.reactions.summary.total_count;
+      const reactP = document.createElement('p');
+      reactP.className = 'mb-1';
+      reactP.textContent = `Reacciones: ${totalReactions}`;
+      cardBody.appendChild(reactP);
+    }
+
+    // Compartidos (si existe la propiedad "shares.count")
+    if (post.shares && post.shares.count !== undefined) {
+      const shareP = document.createElement('p');
+      shareP.className = 'mb-1';
+      shareP.textContent = `Compartido: ${post.shares.count} veces`;
+      cardBody.appendChild(shareP);
+    }
+
+    // Botón para ver la publicación en Facebook
+    if (post.permalink_url) {
+      const linkBtn = document.createElement('a');
+      linkBtn.className = 'btn btn-sm btn-outline-primary mt-auto';
+      linkBtn.href = post.permalink_url;
+      linkBtn.target = '_blank';
+      linkBtn.textContent = 'Ver en Facebook';
+      cardBody.appendChild(linkBtn);
+    }
+
+    // Se agrega el body a la tarjeta
     card.appendChild(cardBody);
 
-    // Al hacer clic, se puede abrir un modal o redirigir a la página de Facebook
-    card.addEventListener("click", function() {
-      window.open(`https://www.facebook.com/${item.id}`, "_blank");
-    });
+    // Se agrega la tarjeta a la columna
+    col.appendChild(card);
 
-    resultsDiv.appendChild(card);
+    // Se agrega la columna al contenedor
+    feedContainer.appendChild(col);
   });
 }
 
-// Evento para iniciar la búsqueda al hacer clic en el botón "Buscar"
-document.getElementById("searchBtn").addEventListener("click", function() {
-  const query = document.getElementById("searchInput").value;
-  if (!query) return;
-  searchProfiles(query);
-});
+// Llamada a la API de Facebook para obtener las publicaciones
+fetch(endpoint)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`Error en la solicitud: ${response.statusText}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    document.getElementById('message').textContent = ''; 
+    renderFeed(data);
+  })
+  .catch(error => {
+    console.error('Error al obtener las publicaciones:', error);
+    document.getElementById('message').textContent = 'Error al cargar las publicaciones. Verifica el token y los permisos.';
+  });
+
+// Ejemplo básico para cerrar el modal (si lo implementas en el futuro)
+const modal = document.getElementById('videoModal');
+const modalClose = document.getElementById('modalClose');
+if(modalClose){
+  modalClose.addEventListener('click', () => {
+    modal.style.display = "none";
+  });
+}
