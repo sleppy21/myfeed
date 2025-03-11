@@ -1,62 +1,116 @@
-// Pon aquí tu token de acceso con los permisos necesarios
 const accessToken = 'EAASZCQLWDkywBOZBD4uw5j0hbF1MvnvD5ZBZABcKN8NShpZAjeT6YhZCRoFNM9VBIGERgtfalwJIDQoryyp0Xnt7o7XH7hVN5eGDmgwKx1N6qwiEWTkE5bWVu2kzsZAVHYuxUKHZBNoaxqfN4PC3d0W3xXa5Y8XHoDm19j9gdZBK5vriugTVEZAPLZCisTrP7ZC5bZCckyyYzxcLRP1aGnSM4WwZDZD';
 const apiVersion = 'v16.0';
 
-// Endpoint para obtener el perfil (nombre y foto)
+// 1. Endpoint para obtener el perfil (nombre, foto)
 const profileEndpoint = `https://graph.facebook.com/${apiVersion}/me?fields=name,picture.width(60).height(60)&access_token=${accessToken}`;
 
-// Endpoint para obtener las publicaciones
-// Reacciones se obtienen con "reactions.summary(true)"
-// "message", "created_time", "full_picture", "permalink_url"
-const postsEndpoint = `https://graph.facebook.com/${apiVersion}/me/posts?fields=id,message,created_time,full_picture,permalink_url,reactions.summary(true)&access_token=${accessToken}`;
+// 2. Endpoint para obtener las publicaciones con reacciones por tipo
+// Usamos "as()" para renombrar cada set de reacciones
+const postsEndpoint = `
+https://graph.facebook.com/${apiVersion}/me/posts?fields=
+id,
+message,
+created_time,
+full_picture,
+permalink_url,
+shares,
+reactions.type(LIKE).summary(true).limit(0).as(like_reactions),
+reactions.type(LOVE).summary(true).limit(0).as(love_reactions),
+reactions.type(HAHA).summary(true).limit(0).as(haha_reactions),
+reactions.type(WOW).summary(true).limit(0).as(wow_reactions),
+reactions.type(SAD).summary(true).limit(0).as(sad_reactions),
+reactions.type(ANGRY).summary(true).limit(0).as(angry_reactions)
+&access_token=${accessToken}
+`.replace(/\s+/g, ''); 
 
-// Variable global para guardar datos del perfil
 let myProfile = null;
+
+function buildReactionsRow(post) {
+  const container = document.createElement('div');
+  container.className = 'fb-post-reactions';
+
+  // Obtenemos la cuenta de cada tipo de reacción (o 0 si no existe)
+  const likeCount = post.like_reactions?.summary?.total_count ?? 0;
+  const loveCount = post.love_reactions?.summary?.total_count ?? 0;
+  const hahaCount = post.haha_reactions?.summary?.total_count ?? 0;
+  const wowCount  = post.wow_reactions?.summary?.total_count ?? 0;
+  const sadCount  = post.sad_reactions?.summary?.total_count ?? 0;
+  const angryCount= post.angry_reactions?.summary?.total_count ?? 0;
+
+  function addReaction(iconClass, count) {
+    if (count > 0) {
+      const span = document.createElement('span');
+      span.className = 'me-3 fb-reaction-item';
+      span.innerHTML = `<i class="${iconClass}"></i> ${count}`;
+      container.appendChild(span);
+    }
+  }
+
+  addReaction('bi bi-hand-thumbs-up', likeCount);
+  addReaction('bi bi-heart-fill', loveCount);
+  addReaction('bi bi-emoji-laughing', hahaCount);
+  addReaction('bi bi-emoji-surprised', wowCount);
+  addReaction('bi bi-emoji-frown', sadCount);
+  addReaction('bi bi-emoji-angry', angryCount);
+
+  return container;
+}
 
 /* --- Función para construir el HTML de cada post --- */
 function buildPostHTML(post) {
-  // Contenedor principal de la publicación (tarjeta)
-  const postDiv = document.createElement('div');
-  postDiv.className = 'fb-post card h-100'; 
-  // h-100 para que la tarjeta ocupe la altura total de la columna
+  // Col contenedor (Bootstrap: col-md-6 para posts más anchos)
+  const col = document.createElement('div');
+  col.className = 'col-md-6 d-flex';
 
-  // Cabecera de la tarjeta
+  // Tarjeta principal
+  const card = document.createElement('div');
+  card.className = 'fb-post card h-100 d-flex flex-column'; 
+
+  // --- Cabecera (foto, nombre y fecha) ---
   const headerDiv = document.createElement('div');
-  headerDiv.className = 'card-header d-flex align-items-center';
+  headerDiv.className = 'card-header d-flex flex-column fb-post-header';
 
-  // Foto y nombre del autor
-  if (myProfile && myProfile.picture && myProfile.picture.data) {
+  // Contenedor para imagen y nombre en una fila
+  const headerTop = document.createElement('div');
+  headerTop.className = 'd-flex align-items-center';
+
+  // Foto de perfil
+  if (myProfile?.picture?.data?.url) {
     const authorImg = document.createElement('img');
     authorImg.src = myProfile.picture.data.url;
-    authorImg.alt = myProfile.name;
-    authorImg.className = 'fb-author-pic me-2';
-    headerDiv.appendChild(authorImg);
+    authorImg.alt = myProfile.name || 'Autor';
+    authorImg.className = 'fb-post-author-pic me-2';
+    headerTop.appendChild(authorImg);
   }
-  if (myProfile && myProfile.name) {
+  // Nombre del autor
+  if (myProfile?.name) {
     const authorName = document.createElement('div');
     authorName.className = 'fw-bold';
     authorName.textContent = myProfile.name;
-    headerDiv.appendChild(authorName);
+    headerTop.appendChild(authorName);
   }
-  postDiv.appendChild(headerDiv);
+  
+  headerDiv.appendChild(headerTop);
 
-  // Cuerpo de la tarjeta
-  const bodyDiv = document.createElement('div');
-  bodyDiv.className = 'card-body d-flex flex-column';
-
-  // Fecha de publicación
+  // Fecha (ahora justo debajo del nombre)
   if (post.created_time) {
     const dateEl = document.createElement('div');
-    dateEl.className = 'text-muted small mb-2';
+    dateEl.className = 'fb-post-date';
     const dateObj = new Date(post.created_time);
     dateEl.textContent = dateObj.toLocaleString();
-    bodyDiv.appendChild(dateEl);
+    headerDiv.appendChild(dateEl);
   }
 
-  // Descripción
+  card.appendChild(headerDiv);
+
+  // --- Cuerpo de la tarjeta ---
+  const bodyDiv = document.createElement('div');
+  bodyDiv.className = 'card-body fb-post-body d-flex flex-column';
+
+  // Mensaje / descripción
   if (post.message) {
     const msgEl = document.createElement('p');
-    msgEl.className = 'fb-post-text mb-2';
+    msgEl.className = 'fb-post-message mb-2';
     msgEl.textContent = post.message;
     bodyDiv.appendChild(msgEl);
   }
@@ -70,48 +124,37 @@ function buildPostHTML(post) {
     bodyDiv.appendChild(imgEl);
   }
 
-  // Reacciones
-  if (post.reactions && post.reactions.summary) {
-    const totalReactions = post.reactions.summary.total_count;
-    const reactEl = document.createElement('div');
-    reactEl.className = 'text-muted small mb-2';
-    reactEl.textContent = `Reacciones: ${totalReactions}`;
-    bodyDiv.appendChild(reactEl);
+  // Sección de reacciones
+  const reactionsRow = buildReactionsRow(post);
+  if (reactionsRow.children.length > 0) {
+    bodyDiv.appendChild(reactionsRow);
   }
 
-  // Botón para compartir (en realidad abre la publicación en Facebook)
+  // Botón para compartir (abre el post en Facebook)
   if (post.permalink_url) {
     const shareBtn = document.createElement('a');
-    shareBtn.className = 'btn btn-sm btn-primary mt-auto';
+    shareBtn.className = 'fb-post-share-btn mt-auto'; 
     shareBtn.href = post.permalink_url;
     shareBtn.target = '_blank';
-    shareBtn.textContent = 'Compartir';
+    // Ícono de compartir (Bootstrap Icons) con texto "Compartir"
+    shareBtn.innerHTML = `<i class="bi bi-share-fill"></i> Compartir`;
     bodyDiv.appendChild(shareBtn);
   }
 
-  postDiv.appendChild(bodyDiv);
-  return postDiv;
+  card.appendChild(bodyDiv);
+  col.appendChild(card);
+
+  return col;
 }
 
-/* --- Función para renderizar todas las publicaciones en 3 columnas --- */
+/* --- Renderizar todos los posts --- */
 function renderPosts(data) {
   const postsContainer = document.getElementById('posts');
-  postsContainer.innerHTML = ''; // Limpia
+  postsContainer.innerHTML = '';
 
   data.data.forEach(post => {
-    // Creamos la columna
-    const col = document.createElement('div');
-    col.className = 'col-md-4 d-flex'; 
-    // d-flex para que la tarjeta crezca en altura uniformemente si deseas
-
-    // Construimos el post
     const postHTML = buildPostHTML(post);
-
-    // Insertamos la tarjeta en la columna
-    col.appendChild(postHTML);
-
-    // Insertamos la columna en el row (#posts)
-    postsContainer.appendChild(col);
+    postsContainer.appendChild(postHTML);
   });
 }
 

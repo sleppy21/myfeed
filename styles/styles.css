@@ -1,53 +1,68 @@
-/* ===== Estilos Generales ===== */
+/* ===== Layout General ===== */
 body {
-  background-color: #f0f2f5; /* Fondo gris claro estilo Facebook */
+  background-color: #f0f2f5; /* Gris claro estilo Facebook */
   color: #1c1e21;
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
 }
 
-h1 {
-  color: #1c1e21;
-  font-weight: 600;
+/* Barra lateral */
+.sidebar {
+  min-height: 100vh; /* Para que ocupe toda la altura de la pantalla */
+  background-color: #282424; /* Color de fondo actualizado */
 }
 
-/* Mensaje de carga */
-#message {
-  color: #555;
-}
+/* ===== Estilos de la Tarjeta de Publicación ===== */
 
-/* ===== Estilos para las publicaciones ===== */
+/* Contenedor principal de la tarjeta */
 .fb-post {
   background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s ease-in-out;
+}
+.fb-post:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-/* Cabecera del post (foto + nombre) */
-.card-header {
+/* Cabecera: foto, nombre y fecha */
+.fb-post-header {
   background-color: #fff;
-  border-bottom: 1px solid #ddd;
+  /* Se quita la línea separadora */
+  /* border-bottom: 1px solid #ddd; */
+  padding: 10px;
 }
-
-.fb-author-pic {
+.fb-post-author-pic {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
 }
 
-/* Cuerpo de la tarjeta */
-.card-body {
-  padding: 15px;
+/* Fecha (ahora en la cabecera, justo debajo del nombre) */
+.fb-post-date {
+  font-size: 0.75rem;
+  color: #606770;
+  margin-top: 4px;
 }
 
-.fb-post-text {
+/* Cuerpo de la tarjeta */
+.fb-post-body {
+  padding: 15px;
+  flex: 1 1 auto; /* Para que crezca */
+}
+
+/* Mensaje de la publicación */
+.fb-post-message {
   font-size: 0.95rem;
   line-height: 1.4;
   white-space: pre-line; /* Respeta saltos de línea */
 }
 
+/* Imagen */
 .fb-post-image {
   width: 100%;
   max-height: 400px;
@@ -56,20 +71,35 @@ h1 {
   display: block;
 }
 
-/* Botón para compartir */
-.btn-primary {
-  background-color: #1877f2;
-  border-color: #1877f2;
+/* Reacciones */
+.fb-post-reactions {
+  margin: 10px 0;
 }
-.btn-primary:hover {
-  background-color: #166fe5;
-  border-color: #166fe5;
+.fb-reaction-item {
+  font-size: 1rem;
+  vertical-align: middle;
 }
 
-/* Espaciado entre columnas */
-.row.g-4 > * {
-  margin-bottom: 0; /* Bootstrap g-4 ya maneja gutters horizontales */
-  /* Si deseas espacio vertical extra, usa mb-4 en .col-md-4 */
+/* Botón de compartir (mejorado con ícono y texto) */
+.fb-post-share-btn {
+  width: auto;
+  height: 40px;
+  background-color: #1877f2; /* Azul FB */
+  color: #fff;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: background-color 0.2s;
+  padding: 0 10px;
+}
+.fb-post-share-btn:hover {
+  background-color: #166fe5;
+}
+.fb-post-share-btn i {
+  font-size: 1.2rem;
+  margin-right: 4px;
 }
 
 /* ===== Modal (opcional) ===== */
