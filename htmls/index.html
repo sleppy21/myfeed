@@ -20,7 +20,7 @@
   <nav class="custom-navbar">
     <div class="container-fluid">
       <a class="custom-navbar-brand" href="#">Mi Sitio FB</a>
-      <!-- Puedes agregar más elementos o enlaces aquí según tus necesidades -->
+      <!-- Puedes agregar más elementos aquí -->
     </div>
   </nav>
 
@@ -28,7 +28,7 @@
   <div class="container-fluid" style="margin-top: 70px;">
     <div class="row">
       <!-- Barra lateral izquierda -->
-      <aside class="col-md-2 sidebar p-3">
+      <aside class="sidebar p-4">
         <h5 class="mb-3">Menú Lateral</h5>
         <ul class="list-unstyled">
           <li><a href="#" class="text-decoration-none">Inicio</a></li>
@@ -38,15 +38,17 @@
       </aside>
 
       <!-- Contenido principal -->
-      <main class="col-md-10 p-4">
+      <main class="main-content p-4">
         <!-- Mensaje de carga / error -->
         <div id="message" class="text-center fs-5 mb-4">
           Cargando publicaciones, por favor espera...
         </div>
 
         <!-- Contenedor de las publicaciones -->
-        <div id="posts" class="row g-4">
-          <!-- Se inyectan las tarjetas aquí -->
+        <div class="fondo">
+          <div id="posts" class="row g-4">
+            <!-- Se inyectan las tarjetas aquí -->
+          </div>
         </div>
       </main>
     </div>

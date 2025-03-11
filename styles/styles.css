@@ -1,6 +1,11 @@
+/* ===== Variables Globales ===== */
+:root {
+  --sidebar-width: 250px; /* Ancho personalizable para el sidebar */
+}
+
 /* ===== Layout General ===== */
 body {
-  background-color: #f0f2f5; /* Gris claro estilo Facebook */
+  background-color: #fefeff; /* Gris claro estilo Facebook */
   color: #1c1e21;
   font-family: Arial, sans-serif;
   margin: 0;
@@ -16,7 +21,9 @@ body {
   background-color: #fff; /* Fondo blanco */
   border-bottom: 1px solid #ddd; /* Línea sutil inferior */
   z-index: 1000;
-  padding: 10px 20px;
+  padding: 12px 20px;
+  font-family: 'Times New Roman', Times, serif;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra hacia abajo */
 }
 .custom-navbar .container-fluid {
   display: flex;
@@ -24,18 +31,29 @@ body {
   justify-content: space-between;
 }
 .custom-navbar-brand {
-  font-size: 1.5rem;
-  font-weight: bold;
   color: #1c1e21;
+  font-family: Arial, sans-serif; /* Aquí se define la fuente por defecto */
+  margin: 0;
+  padding: 6px;
   text-decoration: none;
+  font-size: 15px;
 }
 
 /* Barra lateral */
 .sidebar {
+  width: var(--sidebar-width); /* Se usa la variable para el ancho */
   min-height: 100vh; /* Ocupa toda la altura de la pantalla */
   background-color: #212021; /* Color oscuro */
   color: #fff;
+  transform: translate(0px, -15px); /* Desplaza 50px a la derecha y -15px arriba */
+  padding: 20px; /* Espaciado interno */
+}
+
+/* Contenido principal: se ajusta para dejar espacio al sidebar */
+.main-content {
+  flex: 1;
   padding: 20px;
+  margin-left: var(--sidebar-width); /* Desplaza el contenido a la derecha del sidebar */
 }
 
 /* Animación de fade-in para publicaciones */
@@ -48,8 +66,7 @@ body {
 #posts {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
-  justify-content: space-between;
+  gap: 30px;
 }
 
 /* Cada columna ocupará el 33.33% del contenedor (menos el gap) */
@@ -60,12 +77,19 @@ body {
   animation: fadeIn 0.5s ease-in-out;
 }
 
+.fondo {
+  background-color: #fbfafb;
+  transform: translate(-10px, -35px);
+  padding: 28px;
+  border-radius: 20px;
+  border: 3px solid #f7f6f7;
+}
+
 /* ===== Estilos de la Tarjeta de Publicación ===== */
 .fb-post {
   width: 100%;              /* Ocupa el 100% del contenedor .post-col */
   box-sizing: border-box;   /* Incluye padding en el ancho */
-  background-color: #fff;
-  border-radius: 8px;
+  background-color: #fefeff;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -86,13 +110,15 @@ body {
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
+  transform: translate(0, 5px);
 }
 
 /* Fecha */
 .fb-post-date {
   font-size: 0.75rem;
-  color: #606770;
+  color: #60677098;
   margin-top: 4px;
+  transform: translate(48px, -15px);
 }
 
 /* Cuerpo de la tarjeta */
