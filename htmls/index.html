@@ -14,7 +14,6 @@
   <!-- Hoja de estilos personalizada -->
   <link rel="stylesheet" href="../styles/styles.css">
   <link rel="stylesheet" href="../styles/headercss.css">
-
 </head>
 <body>
 
@@ -28,7 +27,7 @@
       <div class="buttons">
         <button class="publish">Publish</button>
         <button class="close">Close</button>
-    </div>
+      </div>
       <!-- Puedes agregar más elementos aquí si lo requieres -->
     </div>
   </nav>
@@ -65,11 +64,18 @@
     </div>
   </div>
 
-  <!-- Modal opcional (para detalles de un post) -->
-  <div class="modal" id="videoModal">
-    <div class="modal-content">
-      <button class="modal-close" id="modalClose">X</button>
-      <div id="modalBody"></div>
+  <!-- Modal para ver detalles de la publicación al hacer click en la foto -->
+  <div class="modal" id="photoModal">
+    <div class="modal-content modal-photo-content">
+      <button class="modal-close" id="photoModalClose">X</button>
+      <div class="modal-body">
+        <div class="modal-photo-left">
+          <img id="modalPhotoImage" src="" alt="Imagen de la publicación">
+        </div>
+        <div class="modal-photo-right" id="modalPhotoInfo">
+          <!-- Información de la publicación -->
+        </div>
+      </div>
     </div>
   </div>
 

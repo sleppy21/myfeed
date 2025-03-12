@@ -1,6 +1,16 @@
-/* ===== Variables Globales ===== */
+/* Variables para personalizar el modal */
 :root {
-  --sidebar-width: 250px; /* Ancho personalizable para el sidebar */
+  --modal-width: 1000px;      /* Ancho del modal */
+  --modal-height: 700px;     /* Alto del modal */
+  --modal-top: 50px;         /* Posición superior del modal */
+  --modal-left: calc(50% - 450px); /* Centrado horizontalmente (ancho/2) */
+  --modal-bg: #fff;          /* Fondo del modal */
+  
+  /* Variables para personalizar el lado derecho del modal */
+  --modal-right-bg: #fff;
+  --modal-right-padding: 10px;
+  --modal-right-font-size: 14px;
+  --modal-right-color: #000;
 }
 
 /* ===== Layout General ===== */
@@ -138,7 +148,7 @@ body {
 .fb-post-body {
   padding: 15px;
   flex: 1 1 auto;
-  transform: translate(0px, -40px);
+  transform: translate(0px, -36px);
 }
 .fb-post-message {
   font-size: 0.95rem;
@@ -152,7 +162,8 @@ body {
   max-height: 400px;
   object-fit: cover;
   display: block;
-  margin-bottom: 10px;
+  cursor: pointer; /* Indica que es clickeable */
+  padding-bottom: 6px;
 }
 
 /* ===== Sección de acciones: "Me gusta", comentarios, compartir ===== */
@@ -165,28 +176,22 @@ body {
   font-size: 14px;
   color: #606770;
 }
-
-/* "Me gusta" con ícono y número */
 .fb-like-count {
   display: inline-flex;
   align-items: center;
 }
 .fb-like-icon {
-  font-size: 16px;      /* Tamaño del icono de "Me gusta" */
+  font-size: 16px;      /* Tamaño del ícono de "Me gusta" */
   color: #1877F2;       /* Azul de Facebook */
   margin-right: 6px;
 }
 .like-text {
   color: #606770; /* Texto gris */
 }
-
-/* Texto de comentarios */
 .fb-comments-count {
   margin-left: 15px;
   color: #606770;
 }
-
-/* Botón de compartir estilo "FB" */
 .fb-post-share-btn {
   display: inline-flex;
   align-items: center;
@@ -199,7 +204,7 @@ body {
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.23); /* Pequeña sombra */
-  transform: translate(-200px, 37px);
+  transform: translate(0px,1px); /* Ahora editable desde CSS */
 }
 .fb-post-share-btn:hover {
   background-color: #d8dadf67; /* Gris un poco más oscuro */
@@ -210,7 +215,7 @@ body {
   color: #606770; /* Ícono en gris */
 }
 
-/* Modal */
+/* Modal contenedor completo */
 .modal {
   display: none;
   position: fixed; 
@@ -220,20 +225,25 @@ body {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.6);
   z-index: 9999;
-  justify-content: center;
-  align-items: center;
 }
+
+/* Modal con tamaño y posición ajustable, sin padding ni borde */
 .modal .modal-content {
-  background-color: #fff;
-  color: #000;
-  border-radius: 8px;
-  max-width: 800px;
-  width: 90%;
-  max-height: 90%;
-  overflow-y: auto;
-  position: relative;
-  padding: 20px;
+  position: absolute;
+  top: var(--modal-top);
+  left: var(--modal-left);
+  width: var(--modal-width);
+  height: var(--modal-height);
+  background-color: var(--modal-bg);
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  overflow: hidden; /* Evita scroll en el contenedor principal */
+  transform: translate(150px,30px);
+
 }
+
+/* Botón de cierre */
 .modal .modal-close {
   position: absolute;
   top: 10px;
@@ -244,6 +254,44 @@ body {
   font-size: 1.2rem;
   cursor: pointer;
 }
+
+/* Contenedor interno del modal (foto y contenido derecho) */
+.modal-photo-content .modal-body {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+/* Lado izquierdo: fondo negro, sin padding ni margen */
+.modal-photo-left {
+  background-color: #000;
+  flex: 2; /* Proporción ajustable */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+}
+
+/* Imagen centrada y escalada sin deformar */
+.modal-photo-left img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Lado derecho del modal: editable mediante variables */
+.modal-photo-right {
+  flex: 1;
+  padding: var(--modal-right-padding);
+  background-color: var(--modal-right-bg);
+  font-size: var(--modal-right-font-size);
+  color: var(--modal-right-color);
+  overflow-y: auto;
+}
+
 
 /* Animaciones para botones */
 button {
