@@ -1,5 +1,3 @@
-/* scripts/script.js */
-
 const accessToken = 'EAASZCQLWDkywBO8BIcCI8O8ZBAGQMffAfNeIs3pZCwEnqAIpVBEAZA59Ee8uR1DiF6RUVfXVVHm0bJes6P5jUCbQcByAsZCyx2hfLIa3tMYamMYg0nI2CWts9ZBNQrN9cak1JeOYLJVnqzsQFhAK2PYkHEoZBdbsXTJZCi1fmRrOgoTWHSSCarF4akat';
 const apiVersion = 'v16.0';
 
@@ -34,16 +32,23 @@ function buildPostHTML(post) {
   const col = document.createElement('div');
   col.className = 'post-col d-flex';
 
-  // Eliminamos la clase "card" para no heredar bordes de Bootstrap
+  // Tarjeta sin clases de borde de Bootstrap
   const card = document.createElement('div');
   card.className = 'fb-post h-100 d-flex flex-column';
 
-  // Cabecera: foto, nombre y fecha
+  // Cabecera: foto, nombre, fecha y el icono de enlace
   const headerDiv = document.createElement('div');
-  headerDiv.className = 'fb-post-header d-flex flex-column';
+  headerDiv.className = 'fb-post-header';
+  // Se garantiza posicionamiento relativo para el icono
+  headerDiv.style.position = 'relative';
 
+  // Contenedor para la información de autor y el icono
   const headerTop = document.createElement('div');
-  headerTop.className = 'd-flex align-items-center';
+  headerTop.className = 'header-top-container';
+
+  // Contenedor para la info del autor (foto y nombre)
+  const authorContainer = document.createElement('div');
+  authorContainer.className = 'd-flex align-items-center';
 
   // Imagen de perfil
   if (myProfile?.picture?.data?.url) {
@@ -51,7 +56,7 @@ function buildPostHTML(post) {
     authorImg.src = myProfile.picture.data.url;
     authorImg.alt = myProfile.name || 'Autor';
     authorImg.className = 'fb-post-author-pic me-2';
-    headerTop.appendChild(authorImg);
+    authorContainer.appendChild(authorImg);
   }
 
   // Nombre de perfil
@@ -59,9 +64,20 @@ function buildPostHTML(post) {
     const authorName = document.createElement('div');
     authorName.className = 'fw-bold';
     authorName.textContent = myProfile.name;
-    headerTop.appendChild(authorName);
+    authorContainer.appendChild(authorName);
   }
-  
+  headerTop.appendChild(authorContainer);
+
+  // Icono de enlace a la publicación (si existe permalink)
+  if (post.permalink_url) {
+    const postLink = document.createElement('a');
+    postLink.href = post.permalink_url;
+    postLink.target = '_blank';
+    postLink.className = 'post-link-icon';
+    postLink.innerHTML = '<i class="bi bi-box-arrow-up-right"></i>';
+    headerTop.appendChild(postLink);
+  }
+
   headerDiv.appendChild(headerTop);
 
   // Fecha de la publicación
@@ -79,10 +95,10 @@ function buildPostHTML(post) {
   const bodyDiv = document.createElement('div');
   bodyDiv.className = 'fb-post-body d-flex flex-column';
 
-  // Mensaje
+  // Mensaje o descripción
   if (post.message) {
     const msgEl = document.createElement('p');
-    msgEl.className = 'fb-post-message mb-2';
+    msgEl.className = 'fb-post-message';
     msgEl.textContent = post.message;
     bodyDiv.appendChild(msgEl);
   }
@@ -92,15 +108,15 @@ function buildPostHTML(post) {
     const imgEl = document.createElement('img');
     imgEl.src = post.full_picture;
     imgEl.alt = 'Imagen de la publicación';
-    imgEl.className = 'fb-post-image mb-2';
-    // Agregar evento click para abrir modal con foto y detalles
+    imgEl.className = 'fb-post-image';
+    // Evento click para abrir modal con foto y detalles
     imgEl.addEventListener('click', () => {
       openPhotoModal(post);
     });
     bodyDiv.appendChild(imgEl);
   }
 
-  // Contenedor de acciones (reacciones + comentarios + compartir)
+  // Contenedor de acciones (reacciones, comentarios y compartir)
   const actionsDiv = document.createElement('div');
   actionsDiv.className = 'fb-post-actions';
 
@@ -117,28 +133,26 @@ function buildPostHTML(post) {
   const likeCountSpan = document.createElement('span');
   likeCountSpan.className = 'fb-like-count';
   likeCountSpan.innerHTML = `
-  <svg width="20" height="20" viewBox="0 0 40 40" class="fb-like-icon">
-    <defs>
-      <linearGradient id="thumbGradient" x1="50%" x2="50%" y1="0%" y2="100%">
-        <stop offset="0%" stop-color="#18AFFF"/>
-        <stop offset="100%" stop-color="#0062E0"/>
-      </linearGradient>
-    </defs>
-    <!-- Círculo con degradado azul -->
-    <circle fill="url(#thumbGradient)" cx="20" cy="20" r="20"/>
-    <!-- Grupo que inserta el ícono del pulgar blanco -->
-    <g transform="translate(0,0) scale(0.7)">
-      <svg viewBox="-3 -3 20 20" xmlns="http://www.w3.org/2000/svg">
-        <path fill="#fff" d="m20.27 16.265l.705-4.08a1.666 1.666 0 0 0-1.64-1.95h-5.181a.833.833 0 0 1-.822-.969l.663-4.045a4.8 4.8 0 0 0-.09-1.973a1.64 1.64 0 0 0-1.092-1.137l-.145-.047a1.35 1.35 0 0 0-.994.068c-.34.164-.588.463-.68.818l-.476 1.834a7.6 7.6 0 0 1-.656 1.679c-.415.777-1.057 1.4-1.725 1.975l-1.439 1.24a1.67 1.67 0 0 0-.572 1.406l.812 9.393A1.666 1.666 0 0 0 8.597 22h4.648c3.482 0 6.453-2.426 7.025-5.735"/>
-        <path fill="#fff" fill-rule="evenodd" d="M2.968 9.485a.75.75 0 0 1 .78.685l.97 11.236a1.237 1.237 0 1 1-2.468.107V10.234a.75.75 0 0 1 .718-.749" clip-rule="evenodd"/>
-      </svg>
-    </g>
-  </svg>
-  <span class="like-text">${totalReactions}</span>
-`;
+    <svg width="20" height="20" viewBox="0 0 40 40" class="fb-like-icon">
+      <defs>
+        <linearGradient id="thumbGradient" x1="50%" x2="50%" y1="0%" y2="100%">
+          <stop offset="0%" stop-color="#18AFFF"/>
+          <stop offset="100%" stop-color="#0062E0"/>
+        </linearGradient>
+      </defs>
+      <circle fill="url(#thumbGradient)" cx="20" cy="20" r="20"/>
+      <g transform="translate(0,0) scale(0.7)">
+        <svg viewBox="-3 -3 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#fff" d="m20.27 16.265l.705-4.08a1.666 1.666 0 0 0-1.64-1.95h-5.181a.833.833 0 0 1-.822-.969l.663-4.045a4.8 4.8 0 0 0-.09-1.973a1.64 1.64 0 0 0-1.092-1.137l-.145-.047a1.35 1.35 0 0 0-.994.068c-.34.164-.588.463-.68.818l-.476 1.834a7.6 7.6 0 0 1-.656 1.679c-.415.777-1.057 1.4-1.725 1.975l-1.439 1.24a1.67 1.67 0 0 0-.572 1.406l.812 9.393A1.666 1.666 0 0 0 8.597 22h4.648c3.482 0 6.453-2.426 7.025-5.735"/>
+          <path fill="#fff" fill-rule="evenodd" d="M2.968 9.485a.75.75 0 0 1 .78.685l.97 11.236a1.237 1.237 0 1 1-2.468.107V10.234a.75.75 0 0 1 .718-.749" clip-rule="evenodd"/>
+        </svg>
+      </g>
+    </svg>
+    <span class="like-text">${totalReactions}</span>
+  `;
   actionsDiv.appendChild(likeCountSpan);
 
-  // Comentarios (fijo o dinámico si tuvieras datos)
+  // Comentarios (valor fijo o dinámico según datos)
   const commentsCountSpan = document.createElement('span');
   commentsCountSpan.className = 'fb-comments-count';
   commentsCountSpan.textContent = '1 comments'; // Ajusta según datos reales
@@ -150,12 +164,10 @@ function buildPostHTML(post) {
     shareBtn.className = 'fb-post-share-btn';
     shareBtn.href = post.permalink_url;
     shareBtn.target = '_blank';
-    // Ícono distinto para Share
     shareBtn.innerHTML = `<i class="bi bi-arrow-up-right"></i> Share`;
     actionsDiv.appendChild(shareBtn);
   }
 
-  // Se añaden las acciones al body
   bodyDiv.appendChild(actionsDiv);
   card.appendChild(bodyDiv);
   col.appendChild(card);
@@ -175,9 +187,6 @@ function renderPosts(data) {
   });
 }
 
-/**
- * Abre el modal para mostrar la foto y detalles de la publicación.
- */
 /**
  * Abre el modal para mostrar la foto y detalles de la publicación.
  */
@@ -237,7 +246,7 @@ function openPhotoModal(post) {
   const actionsDiv = document.createElement('div');
   actionsDiv.className = 'fb-post-actions';
 
-  // Suma total de reacciones (similares a como se calcula en el feed)
+  // Suma total de reacciones
   const totalReactions = 
     (post.like_reactions?.summary?.total_count ?? 0) +
     (post.love_reactions?.summary?.total_count ?? 0) +
@@ -282,7 +291,6 @@ function openPhotoModal(post) {
   // Muestra el modal
   modal.style.display = 'flex';
 }
-
 
 /**
  * Inicializa el feed de Facebook.
